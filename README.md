@@ -15,5 +15,7 @@ Extensive market research (2026-06-10) lives in [`research/`](research/):
 | [04-summary](research/04-summary.md) | High-level summary |
 | [05-shiny-risks-and-alternatives](research/05-shiny-risks-and-alternatives.md) | R Shiny risks; static-first/shinylive recommendation |
 | [06-vintage-reconstruction](research/06-vintage-reconstruction.md) | Rebuilding data & forecast vintages from past publications |
+| [07-graveyard-negative-cases](research/07-graveyard-negative-cases.md) | Negative cases: how comparable projects died (survivorship-bias sweep) |
+| [08-pre-mortem](research/08-pre-mortem.md) | Pre-mortem: ranked failure modes, countermeasures, sunset protocol |
 
 Prioritized next steps and the icebox live in [TODO.md](TODO.md). Project premises (one-person Liebhaberei, AI-assisted build) and rubrics: [research/00](research/00-methodology-and-rubrics.md).

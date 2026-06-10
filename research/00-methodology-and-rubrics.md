@@ -126,5 +126,5 @@ Applied to every roadmap item before R6 ranking is acted on. Any item scoring **
 - Commercial vendors do not publish pricing; paywall evidence is therefore partly indirect (subscription pages, supplement fees).
 - Web search result snippets occasionally paraphrase; that is exactly why the [V]/[S] tagging exists.
 - **No primary research**: all evidence is secondary (web). Even 3–5 conversations (ESCoE authors, hubverse community, r/econometrics) would upgrade demand evidence from "inferred" to "heard". Tracked in [TODO](../TODO.md).
-- **No systematic negative-case sweep**: v1 searched for evidence the vision is wanted, not for *dead comparable projects* (survivorship bias). The graveyard observations (CRAN-archived `nowcasting`, unlicensed research repos) were found incidentally. A deliberate search for abandoned econ dashboards plus a pre-mortem is tracked in [TODO](../TODO.md).
+- ~~No systematic negative-case sweep~~ **Addressed**: a deliberate graveyard sweep and pre-mortem were completed same-day — see [07-graveyard-negative-cases.md](07-graveyard-negative-cases.md) and [08-pre-mortem.md](08-pre-mortem.md). (Notable correction it produced: the OECD Weekly Tracker, a key supply-side case, turned out to be discontinued.)
 - **Single rater**: all rubric scores reflect one analyst pass (AI-assisted); no inter-rater check.

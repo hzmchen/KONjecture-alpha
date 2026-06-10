@@ -45,6 +45,8 @@ Suspended Sept 2021 → relaunched Sept 2023 ("Nowcast 2.0", weekly Friday updat
 
 Coverage ~46 OECD/G20 countries; **[S]** the quarterly Google-Trends model "has a root mean squared error (RMSE) that is 37% lower than that of an autoregressive model" (CEPR VoxEU column, grade B). Code and weekly estimates are on GitHub — the closest thing to an open multi-country nowcast, but it is a research artifact (no packaging, no live service guarantee, no model comparison, no license statement found in the README).
 
+**Update (post-mortem sweep, same day):** the Tracker has been **discontinued** — withdrawn from oecd.org to the OECD web archive, its dataset moved to the archive tenant of the OECD Data Explorer, and the GitHub repo's last push was 2022-09-20 [V — API check]. The strongest open multi-country nowcast is a dead project; see [07-graveyard-negative-cases.md](07-graveyard-negative-cases.md) case C1.
+
 ### 2.4 Deutsche Bundesbank Weekly Activity Index (Germany) — grade A
 
 > **[V]** "The Weekly Activity Index (WAI) is an experimental measure designed to provide a timely assessment of real economic activity in Germany."
@@ -118,7 +120,7 @@ Scores 0–3 per component (see [rubrics](00-methodology-and-rubrics.md)); C2 sc
 |---|---|---|---|---|---|---|---|---|---|---|
 | Atlanta Fed GDPNow | 2 | 0 | 2 | 0 | 1 | 1 | 0 | 0 | 1 | **7** |
 | NY Fed Staff Nowcast | 2 | 0 | 2 | 0 | 1 | 0 | 0 | 0 | 1 | **6** |
-| OECD Weekly Tracker | 2 | 2 | 1 | 0 | 1 | 0 | 2 | 0 | 2 | **10** |
+| OECD Weekly Tracker † | 2 | 2 | 1 | 0 | 1 | 0 | 2 | 0 | 2 | **10** |
 | Bundesbank WAI | 1 | 0 | 1 | 0 | 0 | 0 | 3 | 0 | 1 | **6** |
 | UNCTAD Nowcasts | 2 | 2 | 1 | 0 | 0 | 1 | 1 | 0 | 2 | **9** |
 | euroareanowcast.com | 1 | 1 | 1 | 0 | 2 | 0 | 0 | 0 | 1 | **6** |
@@ -130,7 +132,7 @@ Scores 0–3 per component (see [rubrics](00-methodology-and-rubrics.md)); C2 sc
 | **hubverse** (epi domain) | 0 | 0 | 2 | 2 | 2 | 3 | 0 | 2 | 3 | **14** |
 | Zoltar (epi domain) | 0 | 0 | 1 | 2 | 2 | 2 | 0 | 2 | 3 | **12** |
 
-💰 = paywalled/commercial. **Reading:** the best coverage score belongs to an epidemiology toolchain with *zero* macroeconomic content; no macro offering exceeds 10/27; the macro offerings' strengths (C1–C3) and the epi toolchain's strengths (C4–C6, C8–C9) are *complementary*, not overlapping.
+💰 = paywalled/commercial. † = discontinued (scored as of its operating period; see [07](07-graveyard-negative-cases.md) C1). **Reading:** the best coverage score belongs to an epidemiology toolchain with *zero* macroeconomic content; no macro offering exceeds 10/27 — and the top *open* macro scorer is now defunct; the macro offerings' strengths (C1–C3) and the epi toolchain's strengths (C4–C6, C8–C9) are *complementary*, not overlapping.
 
 ## 9. Rubric R3 — Building-block maturity (combinability)
 
