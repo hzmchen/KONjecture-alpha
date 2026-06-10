@@ -13,3 +13,7 @@ Extensive market research (2026-06-10) lives in [`research/`](research/):
 | [02-demand-users-and-requirements](research/02-demand-users-and-requirements.md) | Demand: user segments, requirements, open-source selling points |
 | [03-synthesis-market-gap-and-fit](research/03-synthesis-market-gap-and-fit.md) | Synthesis: market gaps, product–market fit, recommendations |
 | [04-summary](research/04-summary.md) | High-level summary |
+| [05-shiny-risks-and-alternatives](research/05-shiny-risks-and-alternatives.md) | R Shiny risks; static-first/shinylive recommendation |
+| [06-vintage-reconstruction](research/06-vintage-reconstruction.md) | Rebuilding data & forecast vintages from past publications |
+
+Prioritized next steps and the icebox live in [TODO.md](TODO.md). Project premises (one-person Liebhaberei, AI-assisted build) and rubrics: [research/00](research/00-methodology-and-rubrics.md).
