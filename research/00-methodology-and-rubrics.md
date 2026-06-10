@@ -4,6 +4,15 @@
 **Research date:** 2026-06-10.
 **Method:** Web search + direct retrieval of primary sources (official institution pages, package documentation, peer-reviewed papers, vendor sites). Findings are documented per topic: supply ([01](01-supply-existing-frameworks.md)), demand ([02](02-demand-users-and-requirements.md)), synthesis ([03](03-synthesis-market-gap-and-fit.md)), summary ([04](04-summary.md)).
 
+## Context update (v2, 2026-06-10)
+
+Two premises supplied by the project owner after v1 reframe the *decision lens* (the factual findings stand):
+
+- **P-A — Liebhaberei.** This is a one-person side project out of curiosity, with no profit intent. Success criterion is sustained enjoyment and learning, not adoption or revenue. Consequence: expected-value logic (pick the biggest opportunity) is replaced by **effectuation logic** (start from means; risk only an affordable loss; let goals emerge) — see Sarasvathy's effectuation research. Rubrics R4 and R6 are amended below, and a new gating rubric **R7 (founder/maintainer fit)** is added.
+- **P-B — AI-assisted build.** The project is developed with AI assistants, which sharply lowers the cost of *writing* code — including rebuilding components that would previously have been adopted as dependencies. It does **not** comparably lower the cost of *operating* services, monitoring scrapers, supporting users, or holding context: the scarce resource is maintainer **attention**, not lines of code. Consequence: build-vs-reuse tilts toward thin bespoke code over heavy dependencies (reducing the dependency-death risk seen with the CRAN-archived `nowcasting` package), while *standards* (e.g. hubverse model-output formats) remain worth adopting because their value is interoperability, not code. Feasibility scores in R6 are re-baselined accordingly.
+
+v2 also adds two topic docs ([05 — R Shiny risks & alternatives](05-shiny-risks-and-alternatives.md), [06 — rebuilding vintages](06-vintage-reconstruction.md)) and a prioritized [TODO/next-steps](../TODO.md).
+
 ## How quotes were validated
 
 Every quote in these documents is tagged with a validation level:
@@ -71,6 +80,8 @@ Each candidate user segment is scored 1–5 per dimension; weighted total → ti
 
 Tiers: **Tier 1** ≥ 4.0 · **Tier 2** 3.0–3.9 · **Tier 3** < 3.0.
 
+**v2 amendment (P-A).** The v1 weights answer "where is market pull strongest?" — the right question for a product, the wrong one for a Liebhaberei. For a hobby project the segments that *give energy back* matter most. v2 therefore adds a second weighting — Reach 0.10, Need 0.20, Evidence 0.15, OSS adoption 0.20, **Contribution potential 0.35** — reported alongside the v1 scores in [02-demand](02-demand-users-and-requirements.md). Additionally, **the maintainer is segment S0, the first and load-bearing user** ("scratch your own itch"); no external segment outranks S0.
+
 ## Rubric R5 — Evidence strength (per claim)
 
 | Level | Criterion |
@@ -89,6 +100,24 @@ For each identified market gap:
 
 Range 1–75. Used to rank which parts of the vision to build first; the ranking logic is shown in [03-synthesis-market-gap-and-fit.md](03-synthesis-market-gap-and-fit.md).
 
+**Methodological caution.** R2/R4/R6 multiply and weight *ordinal* scales scored by a single rater. Treat outputs as **screening ranks, not magnitudes**; only large differences are meaningful, and rankings should survive a ±1 perturbation of any single score before being acted on (sensitivity check tracked in [TODO](../TODO.md)).
+
+**v2 amendments (P-A, P-B).**
+1. **R7 gates R6**: a high-opportunity item that fails R7 (below) goes to the icebox regardless of score.
+2. **Feasibility re-baselined** to "one person + AI assistants, in spare time". This *raises* build feasibility (code is cheap) but **not** operational feasibility: standing services, scraper babysitting, support expectations, and legal review still cost scarce attention. Feasibility is now scored on the *operating* burden, not the writing burden.
+
+## Rubric R7 — Founder/maintainer fit (v2, the gate)
+
+Applied to every roadmap item before R6 ranking is acted on. Any item scoring **Low on Energy return or Dormancy tolerance is redesigned or iceboxed**, whatever its opportunity score.
+
+| Criterion | Question | High / Medium / Low |
+|-----------|----------|---------------------|
+| Curiosity fit | Does building this answer a question the maintainer actually finds interesting? | intrinsic / partial / chore |
+| Learning value | Does it teach skills or knowledge worth having independent of the project? | much / some / none |
+| Energy return | After an evening on this, more or less motivated? | energizing / neutral / draining |
+| **Dormancy tolerance** | Can it survive 3 untouched months without breaking, rotting, or creating obligations to strangers? | yes / degrades gracefully / breaks or embarrasses |
+| Affordable loss | Is the worst case (time, money, public failure) within the accepted loss budget? | clearly / probably / no |
+
 ---
 
 ## Scope notes & limitations
@@ -96,3 +125,6 @@ Range 1–75. Used to rank which parts of the vision to build first; the ranking
 - Searches were conducted in English; German/French-language offerings (e.g. national institutes' tools) may be under-represented. The German "Konjunktur" ecosystem (ifo, IfW, DIW, Bundesbank) was checked via English sources.
 - Commercial vendors do not publish pricing; paywall evidence is therefore partly indirect (subscription pages, supplement fees).
 - Web search result snippets occasionally paraphrase; that is exactly why the [V]/[S] tagging exists.
+- **No primary research**: all evidence is secondary (web). Even 3–5 conversations (ESCoE authors, hubverse community, r/econometrics) would upgrade demand evidence from "inferred" to "heard". Tracked in [TODO](../TODO.md).
+- **No systematic negative-case sweep**: v1 searched for evidence the vision is wanted, not for *dead comparable projects* (survivorship bias). The graveyard observations (CRAN-archived `nowcasting`, unlicensed research repos) were found incidentally. A deliberate search for abandoned econ dashboards plus a pre-mortem is tracked in [TODO](../TODO.md).
+- **Single rater**: all rubric scores reflect one analyst pass (AI-assisted); no inter-rater check.

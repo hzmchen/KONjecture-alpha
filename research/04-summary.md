@@ -1,6 +1,8 @@
 # High-Level Summary — Market Research for KONjecture-alpha
 
-**Date:** 2026-06-10 · Full detail: [methodology/rubrics](00-methodology-and-rubrics.md) · [supply](01-supply-existing-frameworks.md) · [demand](02-demand-users-and-requirements.md) · [synthesis](03-synthesis-market-gap-and-fit.md). All quotes in the detailed documents are source-validated and graded.
+**Date:** 2026-06-10 (v2 same day) · Full detail: [methodology/rubrics](00-methodology-and-rubrics.md) · [supply](01-supply-existing-frameworks.md) · [demand](02-demand-users-and-requirements.md) · [synthesis](03-synthesis-market-gap-and-fit.md) · [Shiny risks & alternatives](05-shiny-risks-and-alternatives.md) · [vintage reconstruction](06-vintage-reconstruction.md) · [TODO/next steps](../TODO.md). All quotes in the detailed documents are source-validated and graded.
+
+> **v2 context:** the project is a one-person Liebhaberei built with AI assistants (premises P-A/P-B in [00](00-methodology-and-rubrics.md)). The findings below stand; the decision lens changed — see "Verdict (v2)".
 
 ## The vision (Issue #1, in one line)
 
@@ -24,8 +26,8 @@ Demand for nowcasts is proven four ways: a paying commercial market; heavily fol
 3. **The neutral comparison venue** no producer will build.
 4. **A continuous, vintage-correct leaderboard** — commercially validated (FocusEconomics awards), scientifically validated in epidemiology (hubverse), absent in macro.
 
-## Verdict
+## Verdict (v2)
 
-**The market gap is the hub, not the models** — promising product–market fit for an open-source project *if* scoped accordingly. Gap-opportunity ranking (rubric R6): ① multi-model/multi-producer comparison platform (score 60), ② open institutional-forecast aggregation seeded from free sources (36), ③ vintage-correct public evaluation/leaderboard (30) — the long-term moat, since an accumulated point-in-time forecast archive cannot be forked or reconstructed. Defer sub-national coverage and alt-data; drop the paper-to-model pipeline from the roadmap (score 5).
+**The market gap is the hub, not the models** — and the unserved jobs are *compare* (J2) and *hold accountable* (J3), both served by the same artifact: an archive of point-in-time forecasts plus a comparison view. Gap ranking (R6, now a gated screen): ① comparison platform, ② institutional-forecast aggregation from free sources, ③ vintage-correct evaluation/leaderboard — whose feasibility *rose* in v2: per-country vintage stores already exist (ALFRED, Bundesbank Gerda, ECB RTD) and major forecast histories are downloadable (GDPNow, NY Fed, IMF WEO, SPF), so **backtesting need not start at day 0** ([06](06-vintage-reconstruction.md)). Sub-national, alt-data, scraping, and the paper-to-model pipeline are iceboxed with explicit revisit triggers ([TODO](../TODO.md)).
 
-**Recommended strategy:** combine, don't rebuild — hubverse-compatible forecast formats + `dfms`/`midasr` model adapters + DBnomics/ALFRED data + `scoringutils` scoring + `targets`/`crew` pipeline + Shiny front end reading precomputed artifacts. Start with one or two regions and an append-only archive from the first run. **Top delivery risk is maintainer sustainability** — this niche's history (CRAN-archived `nowcasting` package, unlicensed research repos, side-project sites) says governance and minimal dependencies matter more than features.
+**Decision lens (Liebhaberei + AI-assisted):** success criterion is founder fit (rubric R7: curiosity, learning, energy return, dormancy tolerance, affordable loss), not adoption. The maintainer is user #1; the most energy-giving external segment is academics/students (v2 Tier 1), not the finance users who topped the v1 market-pull ranking. **Strategy: combine the plumbing, rebuild the glue** — adopt institutionally maintained estimation/scoring/data dependencies and the hubverse *formats*, rebuild thin glue with AI rather than adopting heavy frameworks. Design every component for **graceful dormancy** (static-first delivery; Shiny kept as the hobby but deployed serverlessly via shinylive where possible, [05](05-shiny-risks-and-alternatives.md)); quarterly fun/obligation/affordable-loss audits replace adoption-deadline kill criteria.

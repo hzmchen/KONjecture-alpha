@@ -50,6 +50,36 @@ Weights: reach .15, need intensity .30, evidence strength .25, OSS adoption .15,
 
 **Interpretation.** Demand *pull* is strongest from finance (Tier 1), but an open-source project's early community will realistically be S5 + S1 (high OSS-adoption and contribution scores): academics supply models, official-sector economists supply credibility and use cases; finance and journalists then consume and amplify. This mirrors how the COVID Forecast Hub grew (academic teams → CDC adoption → media citation).
 
+### v2 re-scoring under the Liebhaberei lens (P-A)
+
+With the hobby weights from [00 §R4-v2](00-methodology-and-rubrics.md) (Reach .10, Need .20, Evidence .15, OSS .20, Contribution .35) the ranking inverts — segments are ranked by the energy they give back, not the pull they exert:
+
+| Segment | v1 score (market pull) | v2 score (hobby) | v2 tier |
+|---|---|---|---|
+| **S0 The maintainer** | — | — | **Above all tiers by definition** ("scratch your own itch") |
+| S5 Academics & students | 3.90 | **4.30** | **1** |
+| S1 Official sector | 3.85 | 3.90 | 2 (high) |
+| S2 Financial professionals | 4.10 | 3.45 | 2 |
+| S6 IOs & watchdogs | 3.00 | 3.10 | 2 |
+| S4 Regional policymakers | 3.55 | 3.00 | 2 (low) |
+| S3 Journalists | 3.25 | 2.65 | 3 |
+| S7 General public | 2.30 | 1.95 | 3 |
+
+The v1 Tier-1 segment (finance) drops: its members want feeds, reliability, and support — pure maintenance load with near-zero contribution, the classic open-source burnout vector. The design target becomes: **a tool the maintainer enjoys using weekly, that an econometrics student could contribute a model to.** Everything else is a welcome by-product.
+
+## 3a. Jobs-to-be-done (v2)
+
+The segment view obscures that the evidence actually supports four *jobs* (Christensen/Ulwick framing); features should map to jobs, not personas:
+
+| Job | "Hire" trigger | Today's imperfect hire | Evidence |
+|---|---|---|---|
+| J1 **Know now** — "where is the economy *right now*, before official data?" | data release, market move, news event | GDPNow page, NY Fed PDF, paywalled feeds | Strong (01 §2, 02 §1) |
+| J2 **Compare** — "who says what, and why do they differ?" | conflicting headlines quoting different trackers | manual tab-hopping; MacroMicro charts | Strong (G1; Atlanta Fed refuses the job [V]) |
+| J3 **Hold accountable** — "who has actually been right?" | post-mortem after a surprise; choosing whom to trust | one-off academic papers; FocusEconomics awards (paywalled) | Strong (G2; forecast-error literature) |
+| J4 **Teach & benchmark** — "give students/papers a reproducible playground" | course design; referee asks for benchmark | ad-hoc replication code; FRED-MD | Moderate (S5 evidence; epi-hub precedent) |
+
+J1 is well-served by incumbents; **J2 and J3 are the unserved jobs** and both are served by the *same* artifact: an archive of point-in-time forecasts plus a comparison view. J4 is the contribution on-ramp. This confirms the synthesis priority order independently of the segment scoring.
+
 ## 4. Requirements matrix
 
 Requirements consolidated from the evidence above; ● = primary, ○ = secondary.
