@@ -10,7 +10,7 @@ Prioritized under the v2 lens ([00 — premises P-A/P-B, rubric R7](research/00-
 | N2 | **Riskiest-assumption spike (1 week):** `targets` pipeline skeleton → DBnomics/FRED pull for one region → AR benchmark + `dfms` model → quantile output in hubverse-style format → append-only parquet archive | tests the *technical* riskiest assumption (solo data plumbing), which the market research could not | success = one reproducible end-to-end run |
 | N3 | **Wizard-of-Oz comparison page:** static page comparing *existing* official nowcasts (GDPNow, NY Fed, euro area) — no own model | tests the core J2 value hypothesis in days; zero standing infra | data per [06 §3.1](research/06-vintage-reconstruction.md) |
 | N4 | **Seed the archive retroactively:** GDPNow spreadsheet + ALFRED vintages, NY Fed xlsx, ECB/Philly SPF CSVs | removes cold start; the cheapest most differentiating win | [06 §3](research/06-vintage-reconstruction.md) |
-| N5 | **webR/WASM package audit** for the intended view-layer stack | decides shinylive default ([05 §3](research/05-shiny-risks-and-alternatives.md)) cheaply, before habits form | check binary availability (e.g. C++-based pkgs) |
+| N5 | ~~**webR/WASM package audit** for the intended view-layer stack~~ **done** → [components/06 §3](research/components/06-view-layer-delivery.md): 31/32 stack packages have WASM binaries (incl. C++-based `dfms`); only `arrow` missing, substitutable by `nanoparquet`/`duckdb` — **shinylive default confirmed** | decided shinylive default ([05 §3](research/05-shiny-risks-and-alternatives.md)) | residual: 1-h in-browser smoke test of the app skeleton, folded into N3/X5 |
 
 ## Next (after the spike proves out)
 
