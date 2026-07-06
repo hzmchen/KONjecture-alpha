@@ -8,12 +8,17 @@
 #
 # Usage: Rscript ingest/download_raw.R [--refresh] [--only id1 id2 ...]
 
-ROOT <- normalizePath(file.path(dirname(sub("--file=", "", grep("--file=", commandArgs(FALSE), value = TRUE))), ".."))
-RAW <- file.path(ROOT, "data", "raw")
-MANIFEST <- file.path(RAW, "manifest.json")
+dl_get_root <- function() {
+  env <- Sys.getenv("KONJ_ROOT")
+  if (nzchar(env)) return(normalizePath(env))
+  arg <- grep("--file=", commandArgs(FALSE), value = TRUE)
+  if (length(arg)) return(normalizePath(file.path(dirname(sub("--file=", "", arg[1])), "..")))
+  normalizePath(getwd())
+}
+
 UA <- "KONjecture-alpha archive seeding (one-off bulk download; contact: news378@team706.com)"
 
-SOURCES <- list(
+DL_SOURCES <- list(
   gdpnow = list(
     url = "https://www.atlantafed.org/-/media/Project/Atlanta/FRBA/Documents/cqer/researchcq/gdpnow/GDPTrackingModelDataAndForecasts.xlsx",
     file = "gdpnow_tracking.xlsx",
@@ -46,28 +51,13 @@ SOURCES <- list(
   )
 )
 
-args <- commandArgs(TRUE)
-refresh <- "--refresh" %in% args
-only <- if ("--only" %in% args) args[seq(which(args == "--only") + 1, length(args))] else names(SOURCES)
+download_one <- function(url, dest, ua = UA) {
+  h <- curl::new_handle(useragent = ua, timeout = 120, followlocation = TRUE)
+  curl::curl_download(url, dest, handle = h, quiet = TRUE)
+}
 
-dir.create(RAW, recursive = TRUE, showWarnings = FALSE)
-manifest <- if (file.exists(MANIFEST)) jsonlite::read_json(MANIFEST) else list()
-failures <- character()
-
-for (sid in names(SOURCES)) {
-  if (!sid %in% only) next
-  src <- SOURCES[[sid]]
-  dest <- file.path(RAW, src$file)
-  if (file.exists(dest) && !refresh) {
-    cat(sprintf("[skip] %s: cached (%s)\n", sid, src$file))
-    next
-  }
-  cat(sprintf("[get ] %s: %s\n", sid, src$url))
-  h <- curl::new_handle(useragent = UA, timeout = 120, followlocation = TRUE)
-  ok <- tryCatch({ curl::curl_download(src$url, dest, handle = h, quiet = TRUE); TRUE },
-                 error = function(e) { message(sprintf("[FAIL] %s: %s", sid, conditionMessage(e))); FALSE })
-  if (!ok) { failures <- c(failures, sid); next }
-  manifest[[src$file]] <- list(
+manifest_entry <- function(sid, src, dest) {
+  list(
     source_id = sid,
     url = src$url,
     retrieved_at = format(Sys.time(), "%Y-%m-%dT%H:%M:%S%z", tz = "UTC"),
@@ -75,9 +65,37 @@ for (sid in names(SOURCES)) {
     bytes = file.size(dest),
     notes = src$notes
   )
-  cat(sprintf("[ ok ] %s: %s bytes\n", sid, format(file.size(dest), big.mark = ",")))
 }
 
-jsonlite::write_json(manifest, MANIFEST, auto_unbox = TRUE, pretty = TRUE)
-cat(sprintf("manifest: data/raw/manifest.json (%d files)\n", length(manifest)))
-quit(status = if (length(failures)) 1L else 0L)
+download_main <- function(args = character(), root = dl_get_root()) {
+  raw_dir <- file.path(root, "data", "raw")
+  manifest_path <- file.path(raw_dir, "manifest.json")
+  refresh <- "--refresh" %in% args
+  only <- if ("--only" %in% args) args[seq(which(args == "--only") + 1, length(args))] else names(DL_SOURCES)
+
+  dir.create(raw_dir, recursive = TRUE, showWarnings = FALSE)
+  manifest <- if (file.exists(manifest_path)) jsonlite::read_json(manifest_path) else list()
+  failures <- character()
+
+  for (sid in names(DL_SOURCES)) {
+    if (!sid %in% only) next
+    src <- DL_SOURCES[[sid]]
+    dest <- file.path(raw_dir, src$file)
+    if (file.exists(dest) && !refresh) {
+      cat(sprintf("[skip] %s: cached (%s)\n", sid, src$file))
+      next
+    }
+    cat(sprintf("[get ] %s: %s\n", sid, src$url))
+    ok <- tryCatch({ download_one(src$url, dest); TRUE },
+                   error = function(e) { message(sprintf("[FAIL] %s: %s", sid, conditionMessage(e))); FALSE })
+    if (!ok) { failures <- c(failures, sid); next }
+    manifest[[src$file]] <- manifest_entry(sid, src, dest)
+    cat(sprintf("[ ok ] %s: %s bytes\n", sid, format(file.size(dest), big.mark = ",")))
+  }
+
+  jsonlite::write_json(manifest, manifest_path, auto_unbox = TRUE, pretty = TRUE)
+  cat(sprintf("manifest: %s (%d files)\n", manifest_path, length(manifest)))
+  if (length(failures)) 1L else 0L
+}
+
+if (sys.nframe() == 0L) quit(status = download_main(commandArgs(TRUE)))

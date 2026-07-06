@@ -33,5 +33,6 @@ Prioritized next steps and the icebox live in [TODO.md](TODO.md). Project premis
 | [data/](data/) | `raw/` upstream cache · `archive/` forecasts, outcomes, model output | append-only |
 | [site/](site/build_site.R) | Static Wizard-of-Oz comparison page (self-contained HTML+SVG) | N3 built |
 | [pipeline/](pipeline/README.md) | `targets` graph: archive build + AR(2)/DFM-bridge nowcasts (hubverse-style quantiles) + site build | N2 spike passed; unified |
+| [tests/](tests/COVERAGE.md) | `testthat` suite (117 tests, offline, committed cache as fixtures): `Rscript tests/run_tests.R` · coverage: `Rscript tests/coverage.R` | 97.8% line coverage |
 
 Everything runs offline from the committed raw cache; network is touched only by deliberate one-off `Rscript ingest/download_raw.R` runs. Best-effort hobby project: **no SLA, no update schedule** — artifacts announce their own staleness.

@@ -8,9 +8,17 @@
 
 suppressMessages(library(data.table))
 
-ROOT <- normalizePath(file.path(dirname(sub("--file=", "", grep("--file=", commandArgs(FALSE), value = TRUE))), ".."))
+archive_get_root <- function() {
+  env <- Sys.getenv("KONJ_ROOT")
+  if (nzchar(env)) return(normalizePath(env))
+  arg <- grep("--file=", commandArgs(FALSE), value = TRUE)
+  if (length(arg)) return(normalizePath(file.path(dirname(sub("--file=", "", arg[1])), "..")))
+  normalizePath(getwd())
+}
+
+ROOT <- archive_get_root()
 RAW <- file.path(ROOT, "data", "raw")
-OUT <- file.path(ROOT, "data", "archive")
+ARCHIVE_OUT <- file.path(ROOT, "data", "archive")
 
 MANIFEST <- jsonlite::read_json(file.path(RAW, "manifest.json"))
 retrieved <- function(fname) MANIFEST[[fname]]$retrieved_at
@@ -196,8 +204,8 @@ spf_ecb <- function() {
 
 # --- assemble ---
 
-main <- function() {
-  dir.create(OUT, recursive = TRUE, showWarnings = FALSE)
+archive_main <- function(out_dir = ARCHIVE_OUT) {
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
   gd <- gdpnow()
   gd_fc <- gd$fc
   gd_cur <- gdpnow_current()
@@ -222,13 +230,14 @@ main <- function() {
 
   for (name in c("forecasts", "outcomes")) {
     df <- get(name)
-    nanoparquet::write_parquet(df, file.path(OUT, paste0(name, ".parquet")))
-    fwrite(df, file.path(OUT, paste0(name, ".csv")))
+    nanoparquet::write_parquet(df, file.path(out_dir, paste0(name, ".parquet")))
+    fwrite(df, file.path(out_dir, paste0(name, ".csv")))
     cat(sprintf("%s: %s rows -> data/archive/%s.parquet (+.csv)\n",
                 name, format(nrow(df), big.mark = ","), name))
   }
   cat("\nforecast rows per source:\n")
   print(forecasts[, .(rows = .N, first = min(forecast_date), last = max(forecast_date)), by = source])
+  invisible(list(forecasts = forecasts, outcomes = outcomes))
 }
 
-main()
+if (sys.nframe() == 0L) archive_main()

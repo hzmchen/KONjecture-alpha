@@ -43,9 +43,10 @@ list(
 
   # --- N3: static comparison page (site/build_site.R) ---
   tar_target(site_script, "../site/build_site.R", format = "file"),
+  tar_target(site_lib, "../site/R/site_lib.R", format = "file"),
   tar_target(site_template, "../site/template.html", format = "file"),
   tar_target(site_html,
-             run_build_script(site_script, c(archive_files, site_template),
+             run_build_script(site_script, c(archive_files, site_lib, site_template),
                               "../site/index.html"),
              format = "file")
 )
