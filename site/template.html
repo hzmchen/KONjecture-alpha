@@ -1,0 +1,160 @@
+<title>KONjecture — GDP nowcast comparison ($QNOW)</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#1baf7a; --c3:#eda100; --warnbg:#fdf3dc; --warnink:#6b4d00;
+}
+@media (prefers-color-scheme: dark){:root{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --warnbg:#2b230e; --warnink:#e8c377;
+}}
+:root[data-theme="light"]{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#1baf7a; --c3:#eda100; --warnbg:#fdf3dc; --warnink:#6b4d00;
+}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --warnbg:#2b230e; --warnink:#e8c377;
+}
+body{background:var(--page);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0}
+main{max-width:940px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:22px}
+h1{font-size:26px;margin:0;text-wrap:balance}
+h2{font-size:17px;margin:0 0 4px}
+.sub{color:var(--ink2);margin:2px 0 0}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.banner{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--ink2);font-size:13.5px;display:flex;gap:8px;flex-wrap:wrap}
+.banner strong{color:var(--ink)}
+#stale{display:none;background:var(--warnbg);color:var(--warnink);border-color:transparent}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tile-k{font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:7px}
+.tile-v{font-size:32px;font-weight:650;margin-top:2px}
+.tile-u{font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
+.tile-m{font-size:12px;color:var(--muted)}
+.chip{width:10px;height:10px;border-radius:3px;display:inline-block}
+.chip.s1{background:var(--c1)} .chip.s2{background:var(--c2)} .chip.s3{background:var(--c3)}
+.adv-chip{width:10px;height:10px;display:inline-block;background:var(--ink);transform:rotate(45deg) scale(.8)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin:6px 0 4px}
+.legend span{display:flex;align-items:center;gap:6px}
+svg{width:100%;height:auto;display:block}
+.grid{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--axis);stroke-width:1}
+.tick,.ylab{fill:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+.ylab{fill:var(--ink2)}
+.line{fill:none;stroke-width:2;stroke-linejoin:round}
+.line.s1{stroke:var(--c1)} .line.s2{stroke:var(--c2)} .line.s3{stroke:var(--c3)}
+.dot.s1{fill:var(--c1)} .dot.s2{fill:var(--c2)} .dot.s3{fill:var(--c3)}
+.dot{stroke:var(--surface);stroke-width:2}
+.dl{font-size:12px;font-weight:600}
+.dl.s1{fill:var(--c1)} .dl.s2{fill:var(--c2)} .dl.s3{fill:var(--c3)}
+.adv{fill:var(--ink)}
+.hit{fill:transparent;cursor:default}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--page);font-size:12.5px;
+     padding:5px 9px;border-radius:6px;opacity:0;transition:opacity .12s;max-width:320px;z-index:9;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+table.narrow{width:auto;min-width:340px}
+th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+th,td{padding:6px 12px 6px 0;border-bottom:1px solid var(--grid)}
+tr.mae td{color:var(--ink);font-weight:600;border-bottom:none}
+.note{font-size:13px;color:var(--ink2)}
+.note strong{color:var(--ink)}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--grid);padding-top:14px}
+footer a{color:var(--ink2)}
+ul{margin:6px 0;padding-left:20px}
+@media (prefers-reduced-motion: reduce){#tip{transition:none}}
+</style>
+<main>
+<header>
+  <p class="eyebrow">KONjecture-alpha · Wizard-of-Oz prototype</p>
+  <h1>US GDP nowcasts, side by side — $QNOW</h1>
+  <p class="sub">Official nowcasts and survey forecasts of US real GDP growth, compared against what the
+  Bureau of Economic Analysis actually announced first. No model of our own — this page tests whether the
+  comparison itself is useful.</p>
+</header>
+
+<div class="banner"><span>Data retrieved <strong>$DATA_AS_OF</strong> · page built <strong>$BUILT_AT</strong> ·
+static snapshot, updates event-driven, no schedule promised.</span></div>
+<div class="banner" id="stale">This snapshot is more than 45 days old. The project is likely dormant
+(by design — see the sunset note in the repository); figures below describe the situation as of $DATA_AS_OF.</div>
+
+<section class="tiles">
+$TILES
+</section>
+
+<section class="card">
+  <h2>How the $QNOW nowcasts evolved</h2>
+  <p class="sub">Each point is a published forecast of $QNOW annualized q/q growth (% SAAR), plotted on the day it was made.</p>
+  <div class="legend">$LEGEND</div>
+  $CHART1
+</section>
+
+<section class="card">
+  <h2>Track record: final nowcast vs first print</h2>
+  <p class="sub">For each completed quarter: the last forecast published before BEA's advance estimate (dots)
+  against the advance estimate itself (◆). Scored against the <strong>first release</strong> — see target note below.</p>
+  <div class="legend">$LEGEND <span><span class="adv-chip"></span>BEA advance</span></div>
+  $CHART2
+</section>
+
+<section class="card">
+  <h2>Table view</h2>
+  <div class="tablewrap">$TABLE</div>
+  <p class="note">MAE = mean absolute error vs the advance estimate, on the quarters where all three
+  sources are available (NY Fed relaunch limits the common sample). GDPNow's full-archive MAE since 2011
+  over $GN_N quarters is <strong>$GN_MAE pp</strong>. Philadelphia SPF is a quarterly survey — its "final"
+  value is one mid-quarter round, at an information disadvantage vs daily/weekly trackers; the comparison
+  is disclosed, not handicapped.</p>
+</section>
+
+<section class="card">
+  <h2>Euro area — ECB Survey of Professional Forecasters</h2>
+  <p class="sub">Latest round ($ECB_ROUND): mean point forecasts of euro-area real GDP growth.</p>
+  <div class="tablewrap">$ECBTABLE</div>
+  <p class="note">ECB SPF targets <strong>year-on-year</strong> growth for calendar years and rolling quarters —
+  not convertible to the q/q measure above, so it is shown separately rather than forced onto the same chart
+  (units discipline per the archive schema; euro-area <em>outcome</em> ingestion is a documented next step).</p>
+</section>
+
+<section class="card">
+  <h2>What "right" means here — the target measure</h2>
+  <p class="note">GDP is revised for years, so every score must name its target. This page scores against the
+  <strong>first release</strong> (BEA advance) — what GDPNow itself targets and what a reader expects
+  ("what will be announced"). A second, <strong>fixed-horizon</strong> score (the value as published k quarters
+  later) is the planned scientific default for the leaderboard; it needs later outcome vintages (ALFRED) that
+  are not yet ingested, and recent quarters would show it only after k quarters have passed. Producers also
+  differ in what they implicitly target — GDPNow declares the advance estimate; others don't declare —
+  so rankings on one target can't be read as model quality alone.</p>
+</section>
+
+<footer>
+  <p>Sources: Atlanta Fed GDPNow spreadsheet · NY Fed Staff Nowcast download · Philadelphia Fed SPF mean
+  growth file · ECB SPF microdata. Exact URLs, retrieval timestamps and SHA-256 checksums:
+  <code>data/raw/manifest.json</code> in the repository. Published statistics and forecasts are facts;
+  this page compiles them for research. Best-effort hobby project — <strong>no SLA, no update schedule</strong>;
+  staleness is announced, not hidden.</p>
+</footer>
+</main>
+<div id="tip" role="status"></div>
+<script>
+(function(){
+  var tip = document.getElementById('tip');
+  document.querySelectorAll('.hit').forEach(function(h){
+    h.addEventListener('mousemove', function(ev){
+      tip.textContent = h.getAttribute('data-tip');
+      tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - 330) + 'px';
+      tip.style.top = (ev.clientY + 14) + 'px';
+      tip.style.opacity = 1;
+    });
+    h.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
+  });
+  var built = new Date('$BUILT_AT');
+  var days = (Date.now() - built.getTime()) / 864e5;
+  if (days > 45) document.getElementById('stale').style.display = 'block';
+})();
+</script>
