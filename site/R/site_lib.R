@@ -48,12 +48,15 @@ final_before <- function(us, src, tp, pub) {
 
 build_context <- function(fc, oc, manifest, sources = SITE_SOURCES) {
   us <- fc[region == "US"]
+  # the page's review/track-record logic is US-vs-advance only; the outcomes
+  # table also carries EA vintages (region "EA"), which must stay out of it
+  oc <- oc[region == "US" & release_label == "advance"]
 
   cover <- us[, .(n = uniqueN(source)), by = target_period]
   q_now <- max(cover[n >= 2, target_period])
   evo <- lapply(sources, function(...) NULL)
   for (s in names(sources)) evo[[s]] <- us[source == s & target_period == q_now][order(forecast_date)]
-  adv_now <- oc[target_period == q_now & release_label == "advance"]
+  adv_now <- oc[target_period == q_now]
 
   completed <- oc[order(target_period)][seq(max(1, .N - 11), .N)]
   rows <- lapply(seq_len(nrow(completed)), function(i) {

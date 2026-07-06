@@ -63,10 +63,34 @@ test_that("spf_ecb section parsing survives its two known traps", {
   expect_true(all(ecb$unit_native == "yoy_pct"))
 })
 
+test_that("nyfed_legacy splits real-time from retrospective targets", {
+  leg <- nyfed_legacy()
+  expect_setequal(unique(leg$source), c("nyfed", "nyfed_retro"))
+  expect_true(all(leg[source == "nyfed", target_period] >= "2016Q1"))
+  expect_true(all(leg[source == "nyfed_retro", target_period] < "2016Q1"))
+  # the retired interactive stopped publishing in September 2021
+  expect_identical(max(leg[source == "nyfed", forecast_date]), as.Date("2021-08-27"))
+})
+
+test_that("ea_outcomes derives vintage-correct q/q growth from RTD levels", {
+  ea <- ea_outcomes()
+  expect_identical(unique(ea$unit_native), "qq_pct")
+  fr <- ea[release_label == "first_release"]
+  expect_identical(nrow(fr[duplicated(target_period)]), 0L)
+  # COVID collapse, first print (hand-checked vs euro-area history)
+  expect_equal(fr[target_period == "2020Q2", value_native], -11.7694)
+  # every non-first vintage label carries its publication date
+  expect_true(all(grepl("^vintage_\\d{8}$", ea[release_label != "first_release", release_label])))
+  # growth at each vintage uses the SAME vintage's previous-quarter level:
+  # published_on of first_release must be the quarter's earliest vintage
+  expect_true(all(ea[, min(published_on) == published_on[release_label == "first_release"],
+                     by = target_period]$V1))
+})
+
 test_that("archive_main reproduces the committed archive exactly", {
   tmp <- tempfile("archout")
   res <- archive_main(out_dir = tmp)
-  expect_identical(nrow(res$forecasts), 3285L)
+  expect_identical(nrow(res$forecasts), 5075L)
   expect_true(all(is.na(res$forecasts[unit_native == "yoy_pct", value_qq])))
   for (name in c("forecasts", "outcomes")) {
     got <- fread(file.path(tmp, paste0(name, ".csv")))

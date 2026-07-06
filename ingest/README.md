@@ -10,15 +10,18 @@ Two stages, strictly separated (pure R; the original Python implementation was p
 | Source id | What is ingested | Units | Known fragility | Fallback |
 |---|---|---|---|---|
 | `gdpnow` | Full daily nowcast history 2011Q3→ (TrackingDeepArchives + TrackingArchives) **and** BEA advance estimates + release dates (TrackRecord) → `outcomes` | SAAR % | URL moved under `/-/media/Project/...` at some point; sheet names stable for years | ALFRED series GDPNOW (needs free API key) |
-| `nyfed` | Weekly nowcast grid from the 2023-relaunch xlsx (2022-12→) | SAAR % | The 2016–2021 era lives in a *different* legacy file — **not yet ingested** (gap documented) | Wayback of the old interactive's download |
+| `nyfed` | Weekly nowcast grid from the 2023-relaunch xlsx (2022-12→) | SAAR % | Relaunch file covers 2023-era only; the publication gap 2021-09→2022-12 is real (model suspended) | — |
+| `nyfed_legacy` | The retired interactive's file (2002→2021-08): real-time forecasts for targets 2016Q1→ as `nyfed`; earlier targets kept apart as **`nyfed_retro`** (retrospective estimates, never on leaderboards) | SAAR % | Frozen file (model retired 2021); URL could vanish — cached | Wayback |
+| `ecb_rtd_gdp` | **EA outcome vintages**: euro-area real GDP levels, all vintages via SDMX `includeHistory` (`VALID_FROM` = publication timestamp) → q/q growth per vintage, earliest per quarter = `first_release`, 1991Q2→ | q/q % (canonical) | RTD's first capture can lag the Eurostat preliminary flash by weeks (e.g. 2025Q1 captured t+65) — **D1 caveat**: EA "first release" here = first RTD vintage, not necessarily the flash | Eurostat press-release PDFs (AI-assisted parse, deferred) |
 | `spf_philly` | Mean current-quarter forecast `drgdp2` per round, 1968Q4→ | SAAR % | `forecast_date` approximated as the 15th of the round's middle month (exact deadlines are in a separate documentation file) | Philly Fed publishes exact deadline dates; ingest later for D1-grade timing |
 | `spf_ecb` | Mean GDP point forecast per round & target period, 1999Q1→ (both calendar years `2026` and rolling quarters `2026Q4`) | **yoy %** — not convertible to q/q; `value_qq` is null by design | Section parsing of a sectioned CSV (headers: INFLATION / CORE / GROWTH / UNEMPLOYMENT / ASSUMPTIONS); a leaked-section bug was caught by sanity check — keep the spot checks | ECB Data Portal SPF dataset (API) |
 
 ## Deliberately deferred (with reasons)
 
-- **ALFRED vintages** (all US outcome vintages beyond `advance`, e.g. second/third/latest): requires a free API key; the *schema* already accommodates them (`release_label`, `published_on`). → biggest N4 residual; unlocks `fixed_h<k>` target rules for the US (D2).
-- **EA outcomes** (Eurostat preliminary-flash/flash first prints): needed before any EA scoring; candidate source: Eurostat SDMX one-off pull. Also feeds D1's EA mapping.
-- **NY Fed 2016–2021 era file**: separate legacy download; ingest when found — schema-compatible.
+- **ALFRED vintages** (all US outcome vintages beyond `advance`, e.g. second/third/latest): requires a free API key (owner action O3); the *schema* already accommodates them (`release_label`, `published_on`). → last N4 residual; unlocks `fixed_h<k>` target rules for the US (D2).
+- **Eurostat flash first prints** (t+30 preliminary flash): EA outcome vintages are now ingested from the ECB RTD, but its first capture can lag the flash — upgrade when D1 demands flash-precision timing.
+- ~~EA outcomes~~ **done 2026-07-06** via ECB RTD (14,434 vintage rows, 140 quarters).
+- ~~NY Fed 2016–2021 era file~~ **done 2026-07-06** via the retired interactive's still-live URL (826 real-time rows 2015-12→, 1,288 retro rows kept apart).
 
 ## Validation habits that caught real bugs
 

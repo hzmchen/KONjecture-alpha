@@ -44,6 +44,16 @@ DL_SOURCES <- list(
     file = "fred_gdp_growth.csv",
     notes = "N2 spike target: US real GDP growth (SAAR %, quarterly, latest vintage)."
   ),
+  nyfed_legacy = list(
+    url = "https://www.newyorkfed.org/medialibrary/media/research/policy/nowcast/new-york-fed-staff-nowcast_data_2002-present.xlsx",
+    file = "nyfed_staff_nowcast_legacy.xlsx",
+    notes = "NY Fed Staff Nowcast legacy file (old interactive, retired 2021): weekly nowcasts 2016-04->2021-09 plus pre-2016 retro model estimates (not published in real time - kept apart as nyfed_retro)."
+  ),
+  ecb_rtd_gdp = list(
+    url = "https://data-api.ecb.europa.eu/service/data/RTD/Q.S0.S.G_GDPM_TO_C.E?format=csvdata&includeHistory=true",
+    file = "ecb_rtd_gdp_ea.csv",
+    notes = "ECB Real-Time Database: euro-area real GDP level (chain-linked volumes, SA), ALL vintages via SDMX includeHistory (VALID_FROM = publication timestamp). EA outcome vintages; note RTD first capture may lag the Eurostat flash (D1 caveat)."
+  ),
   spf_ecb = list(
     url = "https://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
     file = "spf_ecb_individual.zip",

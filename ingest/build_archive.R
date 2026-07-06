@@ -104,10 +104,10 @@ gdpnow_current <- function() {
   )
 }
 
-# --- NY Fed Staff Nowcast: Forecasts By Quarter grid (2023- relaunch file) ---
+# --- NY Fed Staff Nowcast: Forecasts By Quarter grids (2023- relaunch file and
+# the retired 2002-2021 legacy file; both share the same date x quarter layout) ---
 
-nyfed <- function() {
-  f <- "nyfed_staff_nowcast.xlsx"
+nyfed_grid <- function(f) {
   raw <- suppressWarnings(readxl::read_excel(file.path(RAW, f), sheet = "Forecasts By Quarter",
                                              col_names = FALSE, col_types = "text"))
   hdr_row <- which(trimws(raw[[1]]) == "Forecast Date")[1]
@@ -121,13 +121,65 @@ nyfed <- function() {
   long <- melt(dt, id.vars = "fdate", measure.vars = qcols,
                variable.name = "target_period", value.name = "value", variable.factor = FALSE)
   long[, value := suppressWarnings(as.numeric(value))]
-  long <- long[!is.na(value)]
+  long[!is.na(value)]
+}
+
+nyfed_rows <- function(long, src, f) {
   data.table(
-    source = "nyfed", region = "US", variable = "rgdp_growth",
+    source = src, region = "US", variable = "rgdp_growth",
     target_period = long$target_period, forecast_date = long$fdate,
     output_type = "point", output_id = NA_character_,
     value_native = long$value, unit_native = "saar_pct",
     declared_target = "unspecified",
+    retrieved_at = retrieved(f), source_file = f
+  )
+}
+
+nyfed <- function() {
+  f <- "nyfed_staff_nowcast.xlsx"
+  nyfed_rows(nyfed_grid(f), "nyfed", f)
+}
+
+nyfed_legacy <- function() {
+  # per the file's own note: forecasts for target quarters 2016Q1-> were made in
+  # real time; earlier targets are retrospective model estimates - kept apart
+  # under source `nyfed_retro` so leaderboards never mix them in
+  f <- "nyfed_staff_nowcast_legacy.xlsx"
+  long <- nyfed_grid(f)
+  rbind(nyfed_rows(long[target_period >= "2016Q1"], "nyfed", f),
+        nyfed_rows(long[target_period < "2016Q1"], "nyfed_retro", f))
+}
+
+# --- ECB RTD: euro-area outcome vintages (GDP level history -> q/q growth) ---
+
+ea_outcomes <- function() {
+  f <- "ecb_rtd_gdp_ea.csv"
+  raw <- fread(file.path(RAW, f), select = c("TIME_PERIOD", "OBS_VALUE", "VALID_FROM"))
+  lv <- raw[, .(
+    target_period = sub("-", "", TIME_PERIOD),
+    qstart = as.Date(paste0(substr(TIME_PERIOD, 1, 4), "-",
+                            (as.integer(substr(TIME_PERIOD, 7, 7)) - 1L) * 3L + 1L, "-01")),
+    level = as.numeric(OBS_VALUE),
+    vfrom = as.Date(substr(VALID_FROM, 1, 10))
+  )][order(qstart, vfrom)]
+  # same-vintage previous-quarter level via rolling as-of join
+  prev <- lv[, .(qstart = seq(qstart, by = "3 months", length.out = 2)[2],
+                 vprev = vfrom, level_prev = level), by = seq_len(nrow(lv))][, -1]
+  setkey(prev, qstart, vprev)
+  cur <- lv[, .(target_period, qstart, level, vfrom, vjoin = vfrom)]
+  m <- prev[cur, on = .(qstart, vprev <= vjoin), mult = "last",
+            .(target_period, qstart, level, vfrom = i.vfrom, level_prev = x.level_prev)]
+  m <- m[!is.na(level_prev)]
+  m[, growth := round((level / level_prev - 1) * 100, 4)]
+  m[, release_label := ifelse(vfrom == min(vfrom), "first_release",
+                              paste0("vintage_", format(vfrom, "%Y%m%d"))), by = target_period]
+  data.table(
+    region = "EA", variable = "rgdp_growth",
+    target_period = m$target_period,
+    release_label = m$release_label,
+    published_on = m$vfrom,
+    value_native = m$growth, unit_native = "qq_pct",
+    source = "ecb_rtd(G_GDPM_TO_C)",
     retrieved_at = retrieved(f), source_file = f
   )
 }
@@ -213,11 +265,16 @@ archive_main <- function(out_dir = ARCHIVE_OUT) {
     gd_fc <- rbind(gd_fc, gd_cur)
     gd_fc <- gd_fc[!duplicated(gd_fc, by = c("target_period", "forecast_date"))]
   }
-  forecasts <- rbindlist(list(gd_fc, nyfed(), spf_philly(), spf_ecb()))
+  ny <- rbind(nyfed(), nyfed_legacy())
+  ny <- ny[!duplicated(ny, by = c("source", "target_period", "forecast_date"))]
+  forecasts <- rbindlist(list(gd_fc, ny, spf_philly(), spf_ecb()))
   forecasts[, value_qq := ifelse(unit_native == "saar_pct",
                                  round(saar_to_qq(value_native), 4), NA_real_)]
   outcomes <- gd$oc
   outcomes[, value_qq := round(saar_to_qq(value_native), 4)]
+  ea <- ea_outcomes()
+  ea[, value_qq := value_native]  # already canonical q/q non-annualized
+  outcomes <- rbind(outcomes, ea)
 
   setcolorder(forecasts, c("source", "region", "variable", "target_period", "forecast_date",
                            "output_type", "output_id", "value_native", "unit_native", "value_qq",

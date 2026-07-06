@@ -46,5 +46,21 @@
     "sha256": "29caa67d2e09812c327766e8f3be9cec14315150a93ef6e7f5a88b5633cef437",
     "bytes": 4831,
     "notes": "N2 spike target: US real GDP growth (SAAR %, quarterly, latest vintage)."
+  },
+  "nyfed_staff_nowcast_legacy.xlsx": {
+    "source_id": "nyfed_legacy",
+    "url": "https://www.newyorkfed.org/medialibrary/media/research/policy/nowcast/new-york-fed-staff-nowcast_data_2002-present.xlsx",
+    "retrieved_at": "2026-07-06T15:54:04+0000",
+    "sha256": "b0ce3db1592672375e3bd43d827da6cf512fbbb602252abb927e6b6d577c234f",
+    "bytes": 210018,
+    "notes": "NY Fed Staff Nowcast legacy file (old interactive, retired 2021): weekly nowcasts 2016-04->2021-09 plus pre-2016 retro model estimates (not published in real time - kept apart as nyfed_retro)."
+  },
+  "ecb_rtd_gdp_ea.csv": {
+    "source_id": "ecb_rtd_gdp",
+    "url": "https://data-api.ecb.europa.eu/service/data/RTD/Q.S0.S.G_GDPM_TO_C.E?format=csvdata&includeHistory=true",
+    "retrieved_at": "2026-07-06T15:55:20+0000",
+    "sha256": "9c7db72f789aee58bc03f40fb6460781eb95928bceb9829d18997566d71e2a58",
+    "bytes": 7270695,
+    "notes": "ECB Real-Time Database: euro-area real GDP level (chain-linked volumes, SA), ALL vintages via SDMX includeHistory (VALID_FROM = publication timestamp). EA outcome vintages; note RTD first capture may lag the Eurostat flash (D1 caveat)."
   }
 }
