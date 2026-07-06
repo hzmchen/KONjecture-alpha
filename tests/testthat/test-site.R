@@ -56,6 +56,17 @@ test_that("build_context derives the page state from the archive", {
   expect_true(all(vapply(ctx$rows, function(r) is.finite(r$advance), TRUE)))
 })
 
+test_that("chart_errors encodes final-nowcast-minus-advance per quarter (X1 review mode)", {
+  ctx <- with_ctx()
+  svg <- chart_errors(ctx)
+  expect_match(svg, 'aria-label="Nowcast errors vs the advance estimate, last 12 quarters"')
+  # spot: 2026Q1 GDPNow final 1.2392 vs advance 1.9901 -> error -0.75 pp
+  expect_match(svg, "Atlanta Fed GDPNow · 2026Q1 · error -0\\.75 pp \\(nowcast 1\\.24% vs advance 1\\.99%\\)")
+  # stems + dots come in pairs per plotted error
+  expect_identical(lengths(regmatches(svg, gregexpr('class="stem', svg))),
+                   lengths(regmatches(svg, gregexpr('class="dot', svg))))
+})
+
 test_that("render_page reproduces the committed page byte-for-byte", {
   ctx <- with_ctx()
   template <- paste0(paste(readLines(file.path(root, "site/template.html"), warn = FALSE),
@@ -79,7 +90,7 @@ test_that("a source with no data degrades gracefully instead of crashing the bui
   ctx <- build_context(fc[source != "nyfed"], oc, manifest)
   expect_true(all(vapply(ctx$rows, function(r) is.null(r$nyfed), TRUE)))
   expect_identical(nrow(ctx$evo$nyfed), 0L)
-  for (fragment in list(tiles(ctx), table_view(ctx), chart_evolution(ctx), chart_trackrecord(ctx)))
+  for (fragment in list(tiles(ctx), table_view(ctx), chart_evolution(ctx), chart_trackrecord(ctx), chart_errors(ctx)))
     expect_type(fragment, "character")
   expect_false(grepl("NY Fed Staff Nowcast [0-9]", chart_evolution(ctx)))  # no direct label
 

@@ -53,6 +53,8 @@ svg{width:100%;height:auto;display:block}
 .dl{font-size:12px;font-weight:600}
 .dl.s1{fill:var(--c1)} .dl.s2{fill:var(--c2)} .dl.s3{fill:var(--c3)}
 .adv{fill:var(--ink)}
+.stem{stroke-width:2;opacity:.35}
+.stem.s1{stroke:var(--c1)} .stem.s2{stroke:var(--c2)} .stem.s3{stroke:var(--c3)}
 .hit{fill:transparent;cursor:default}
 #tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--page);font-size:12.5px;
      padding:5px 9px;border-radius:6px;opacity:0;transition:opacity .12s;max-width:320px;z-index:9;font-variant-numeric:tabular-nums}
@@ -100,6 +102,15 @@ $TILES
   against the advance estimate itself (◆). Scored against the <strong>first release</strong> — see target note below.</p>
   <div class="legend">$LEGEND <span><span class="adv-chip"></span>BEA advance</span></div>
   $CHART2
+</section>
+
+<section class="card">
+  <h2>Review: nowcast errors vs first print</h2>
+  <p class="sub">Error = final nowcast − BEA advance estimate, in percentage points. Right of the
+  line = the source was too optimistic about growth; left = too pessimistic. Same 12 quarters
+  and target rule as the track record above.</p>
+  <div class="legend">$LEGEND</div>
+  $CHART3
 </section>
 
 <section class="card">

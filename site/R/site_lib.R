@@ -176,6 +176,45 @@ chart_trackrecord <- function(ctx) {
          paste(g, collapse = ""), paste(hover, collapse = ""), "</svg>")
 }
 
+chart_errors <- function(ctx) {
+  # X1 review mode: error = final nowcast - first print, per quarter and source
+  W <- 860; rh <- 34; ml <- 84; mr <- 30; mt <- 26; mb <- 30
+  rows <- ctx$rows
+  H <- mt + rh * length(rows) + mb
+  errs <- unlist(lapply(rows, function(r)
+    vapply(names(ctx$sources)[!vapply(r[names(ctx$sources)], is.null, TRUE)],
+           function(s) r[[s]] - r$advance, 0)))
+  lim <- max(abs(errs)) + 0.3
+  fx <- yscale(-lim, lim, ml, W - mr)
+
+  g <- character()
+  for (t in nice_ticks(-lim, lim, 7)) {
+    x <- fx(t)
+    g <- c(g, sprintf('<line class="grid" x1="%s" y1="%d" x2="%s" y2="%d"/><text class="tick" x="%s" y="%d" text-anchor="middle">%s</text>',
+                      f1(x), mt, f1(x), H - mb, f1(x), H - mb + 18, fg(t)))
+  }
+  g <- c(g, sprintf('<line class="axis" x1="%s" y1="%d" x2="%s" y2="%d"/>', f1(fx(0)), mt, f1(fx(0)), H - mb))
+
+  hover <- character()
+  for (i in seq_along(rows)) {
+    r <- rows[[length(rows) - i + 1]]
+    y <- mt + (i - 1) * rh + rh / 2
+    g <- c(g, sprintf('<text class="ylab" x="%d" y="%s" text-anchor="end">%s</text>', ml - 10, f1(y + 4), r$q))
+    for (s in names(ctx$sources)) {
+      if (is.null(r[[s]])) next
+      meta <- ctx$sources[[s]]
+      e <- r[[s]] - r$advance
+      g <- c(g, sprintf('<line class="stem %s" x1="%s" y1="%s" x2="%s" y2="%s"/>',
+                        meta$cls, f1(fx(0)), f1(y), f1(fx(e)), f1(y)),
+             sprintf('<circle class="dot %s" cx="%s" cy="%s" r="5"/>', meta$cls, f1(fx(e)), f1(y)))
+      hover <- c(hover, sprintf('<circle class="hit" cx="%s" cy="%s" r="11" data-tip="%s · %s · error %+.2f pp (nowcast %s%% vs advance %s%%)"/>',
+                                f1(fx(e)), f1(y), meta$label, r$q, e, f2(r[[s]]), f2(r$advance)))
+    }
+  }
+  paste0(sprintf('<svg viewBox="0 0 %d %d" role="img" aria-label="Nowcast errors vs the advance estimate, last %d quarters">', W, H, length(rows)),
+         paste(g, collapse = ""), paste(hover, collapse = ""), "</svg>")
+}
+
 # ============ HTML fragments ============
 
 tiles <- function(ctx) {
@@ -222,6 +261,7 @@ render_page <- function(ctx, template, built_at) {
   subst <- c(QNOW = ctx$q_now, DATA_AS_OF = ctx$data_as_of, BUILT_AT = built_at,
              TILES = tiles(ctx), LEGEND = legend_html(ctx),
              CHART1 = chart_evolution(ctx), CHART2 = chart_trackrecord(ctx),
+             CHART3 = chart_errors(ctx),
              TABLE = table_view(ctx), ECBTABLE = ecb_table(ctx),
              ECB_ROUND = format(ctx$ecb_last_round), GN_MAE = f2(ctx$gdpnow_full_mae),
              GN_N = as.character(length(ctx$full)))
