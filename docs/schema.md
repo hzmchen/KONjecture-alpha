@@ -56,8 +56,26 @@ One row per (region, target_period, outcome vintage). This is the table that mak
 
 | Rule id | Definition | Status |
 |---|---|---|
-| `first_release` | earliest `release_label` per region (US: `advance`) | headline default (N1) |
-| `fixed_h<k>` | vintage published k quarters after `target_period` | scientific default; k = open sub-decision D2 |
+| `first_release` | earliest `release_label` per region — **D1 decided**: US = BEA `advance`; EA = Eurostat preliminary flash (proxied by the first ECB-RTD vintage, disclosed) | headline default (N1) |
+| `fixed_h8` | vintage published 8 quarters after `target_period` — **D2 decided**: k = 8 (2y, literature convention), k = 12 as sensitivity | scientific default; EA computable now, US awaits ALFRED (O3) |
 | `latest` | max `published_on` | computable, never a default (09 §2) |
+
+## Horizon buckets (scores are stratified, never pooled across horizons)
+
+Owner requirement (recorded with the D1/D2 sign-off, [09 §5](../research/09-target-measure-decision.md)):
+nowcast performance and longer-term forecast performance are different questions. Every score
+carries a `horizon` bucket derived from `quarters_ahead` = (target quarter start − forecast-date
+quarter start) / 3 months:
+
+| Bucket | `quarters_ahead` | Reading |
+|---|---|---|
+| `backcast` | < 0 | made after the target quarter ended, before first release |
+| `nowcast` | 0 | made inside the target quarter |
+| `1q_ahead` | 1 | one quarter out |
+| `2-4q_ahead` | 2–4 | up to a year out (SPF/ECB SPF territory) |
+| `5q+_ahead` | ≥ 5 | long-horizon (ECB SPF 2y rolling targets) |
+
+Aggregates (MAE, bias, RMSE) are reported per (source, region, target rule, bucket); cross-region
+aggregation stays forbidden (09 §4).
 
 Append-only discipline: ingestion may add rows, never mutate or delete; re-downloads that change history are a new `retrieved_at` generation, flagged loudly.

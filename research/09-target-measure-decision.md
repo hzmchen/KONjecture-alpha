@@ -47,3 +47,9 @@ Consequently the binary in the issue title ("first vs final") is a false dilemma
 - **L1** gains §4 as an explicit input on fairness rules.
 
 **Status (updated 2026-07-06): option 4 confirmed by the project owner — N1 is decided.** The recommendations in §2 are now the project's defaults. Residual work: D1–D2 must be fixed before X2 (both are cheap to decide once the first two institutional tracks — GDPNow, NY Fed, N4 step 1 — are ingested and their declared targets are visible in the data); D3 applies from the first N4 ingest; D4 is an X5 design input. Issue #2 can be closed referencing this doc.
+
+**D1 + D2 decided by the owner (2026-07-06, second sign-off):**
+
+- **D1 — "first release" targets the *nowcast* concept**: US = BEA **advance** estimate; euro area = Eurostat **preliminary flash**. Implementation note: EA outcomes come from the ECB RTD, whose first capture (`first_release`) can lag the preliminary flash by weeks — used as the flash proxy with disclosure ([ingest/README](../ingest/README.md)); upgrade to flash-precision timing if a use case demands it.
+- **D2 — k per literature convention (2–3 years)**: default rule **`fixed_h8`** (k = 8 quarters), with **k = 12** as a standing sensitivity check. Computable today for the EA (RTD vintages ingested); for the US it awaits ALFRED (owner action O3).
+- **New requirement recorded with the sign-off: performance must be differentiated by forecast horizon** — nowcast-ish performance (backcast/nowcast of the current quarter) must never be pooled with longer-horizon forecast performance (SPF next-quarters, ECB SPF 1–2y ahead). Horizon buckets are defined in [docs/schema.md](../docs/schema.md) and every score is stratified by them.
