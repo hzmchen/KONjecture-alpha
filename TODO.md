@@ -9,7 +9,10 @@ Prioritized under the v2 lens ([00 — premises P-A/P-B, rubric R7](research/00-
 | O1 | **Open/merge the PR chain**: [`issue-2-target-measure`](https://github.com/hzmchen/KONjecture-alpha/tree/issue-2-target-measure) → [`now-items-implementation`](https://github.com/hzmchen/KONjecture-alpha/pull/new/now-items-implementation) (stacked; PAT can push branches but not open PRs) | everything landing on `main`; CI on main |
 | O2 | **Close [Issue #2](https://github.com/hzmchen/KONjecture-alpha/issues/2)** referencing [research/09](research/09-target-measure-decision.md) (option 4 confirmed 2026-07-06; bot cannot comment on issues) | bookkeeping |
 | O3 | **Create a free ALFRED API key** (alfred.stlouisfed.org) and provide it (e.g. `ALFRED_API_KEY` env var / repo secret) | US outcome vintages beyond `advance` → `fixed_h<k>` target rule → D2 → the scientific leaderboard default |
-| O4 | **Sign off D1 + D2** ([09 §3](research/09-target-measure-decision.md)): per-region "first release" mapping and the fixed-horizon k | X2 scoring |
+| O4 | **Sign off D1 + D2** ([09 §3](research/09-target-measure-decision.md)): per-region "first release" mapping and the fixed-horizon k. New D1 input: EA outcomes are ingested from ECB RTD, whose first capture can lag the Eurostat flash ([ingest/README](ingest/README.md)) | X2 scoring |
+| O5 | **Choose the repo license** (constraint from [components §5](research/components/README.md): GPL-3 estimation cores ⇒ GPL-compatible; MIT qualifies) and add `LICENSE`; also fills the `license` field in [.zenodo.json](.zenodo.json) | first public release; Zenodo escrow metadata |
+| O6 | **Create a Zenodo account/token** for DOI escrow snapshots ([RELEASING.md](RELEASING.md)) | X9 escrow step |
+| O7 | **Install the CI workflow**: `git mv ci/tests.yml .github/workflows/tests.yml && git commit && git push` (bot PAT lacks the `workflow` scope to push workflow files) | fail-loud CI (X9) |
 
 ## Now (first concrete steps)
 
@@ -25,7 +28,7 @@ Prioritized under the v2 lens ([00 — premises P-A/P-B, rubric R7](research/00-
 
 | # | Item | Trigger |
 |---|------|---------|
-| X1 | Review mode (expected vs realised) over the seeded archive | N4 done |
+| X1 | ~~Review mode (expected vs realised) over the seeded archive~~ **done 2026-07-06**: error chart (final nowcast − first print, lollipop vs zero axis) as a Review section on the page and a Review tab on the dashboard | N4 done ✓ |
 | X2 | `scoringutils`-based scoring + first vintage-correct backtest (US first, then DE/EA via Gerda/ECB RTD) | N1 sub-decisions D1+D2 fixed ([09 §3](research/09-target-measure-decision.md)), N4 done |
 | X3 | Add 2nd/3rd model class (`midasr`; `nowcast_lstm` via reticulate) behind a thin model-adapter interface | N2 architecture stable |
 | X4 | Expand regions: US, EA, DE, FR, IT, ES, UK | ingestion adapters generalized |
@@ -33,7 +36,7 @@ Prioritized under the v2 lens ([00 — premises P-A/P-B, rubric R7](research/00-
 | X6 | **Methodology debt:** sensitivity check of rubric scores (±1 perturbation). ~~Negative-case sweep + pre-mortem~~ **done** → [07](research/07-graveyard-negative-cases.md), [08](research/08-pre-mortem.md) | before any public "launch" framing |
 | X7 | Optional: 3–5 primary conversations (ESCoE, hubverse community, r/econometrics) | when external feedback would be fun, not before |
 | X8 | IMF WEO + OECD EO vintage ingestion (global annual institutional tracks) | X1 shipped |
-| X9 | **Pre-mortem countermeasures** ([08 §4](research/08-pre-mortem.md)): fail-loud CI; per-source dependency register with fallbacks; per-source license registry; no-SLA note in README; no-streak rule (event-driven cadence, no calendar promises); Zenodo/DOI escrow snapshots of code+archive per release; SUNSET note skeleton | with first public artifact (N3/X5) |
+| X9 | ~~**Pre-mortem countermeasures**~~ **substantially done 2026-07-06** ([08 §4](research/08-pre-mortem.md)): fail-loud CI ([ci/tests.yml](ci/tests.yml) — offline suite on push + monthly heartbeat; **owner must `git mv ci/tests.yml .github/workflows/` (O7)**, the bot's PAT lacks `workflow` scope) ✓ · dependency register with fallbacks + license registry ([ingest/README](ingest/README.md)) ✓ · no-SLA note ✓ · no-streak rule ([RELEASING.md](RELEASING.md)) ✓ · SUNSET skeleton ([SUNSET.md](SUNSET.md)) ✓ · Zenodo escrow procedure + [.zenodo.json](.zenodo.json) ready — needs O5 (license) + O6 (Zenodo token) | with first public artifact (N3/X5) ✓ |
 
 ## Later (valuable, not yet)
 

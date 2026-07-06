@@ -23,6 +23,24 @@ Two stages, strictly separated (pure R; the original Python implementation was p
 - ~~EA outcomes~~ **done 2026-07-06** via ECB RTD (14,434 vintage rows, 140 quarters).
 - ~~NY Fed 2016–2021 era file~~ **done 2026-07-06** via the retired interactive's still-live URL (826 real-time rows 2015-12→, 1,288 retro rows kept apart).
 
+## Data licensing / reuse register (pre-mortem countermeasure, [08 §4](../research/08-pre-mortem.md))
+
+Published macro statistics and forecasts are facts and compiling them is standard research
+practice ([06 §2](../research/06-vintage-reconstruction.md)); this register tracks the
+per-provider terms that matter before any bulk *redistribution*.
+
+| Provider | Terms page | Status |
+|---|---|---|
+| ECB (RTD, SPF) | [ECB Data Portal reuse: CC BY 4.0](https://data.ecb.europa.eu/help/copyright-and-disclaimer) | attribution required — compatible with redistribution |
+| FRED (fredgraph csv) | [FRED terms of use](https://fred.stlouisfed.org/legal/) | cite source; **verify before redistributing bulk series** (we redistribute only 6 cached series for reproducibility) |
+| Atlanta Fed (GDPNow) | [frbatlanta.org terms](https://www.atlantafed.org/disclaimers-and-terms-of-use) | public research data; attribution customary; verify before bulk redistribution |
+| NY Fed (Staff Nowcast) | [newyorkfed.org terms of use](https://www.newyorkfed.org/termsofuse) | public research data; attribution customary; verify before bulk redistribution |
+| Philadelphia Fed (SPF) | [SPF data page](https://www.philadelphiafed.org/surveys-and-data/real-time-data-research/survey-of-professional-forecasters) | public research data; attribution customary |
+
+Derived tables in `data/archive/` (normalized values, growth rates, errors) are
+compilations/derived series — unproblematic per the legal note in 06 §2. The raw cache is
+redistributed solely for reproducibility, unmodified, with provenance in `manifest.json`.
+
 ## Validation habits that caught real bugs
 
 Every build prints per-source row counts and date spans; after any parser change, spot-check one hand-verifiable number per source against the raw file (e.g. GDPNow's final 2026Q1 nowcast 1.2392 vs TrackRecord; ECB 2026Q2-round individuals ~0.8–1.3 ⇒ mean ≈ 0.96, *not* 3.4 — the 3.4 came from unemployment rows leaking through a bad section boundary). Validation attention is the bottleneck (P-B); these checks are cheap and stay.
