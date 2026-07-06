@@ -2,6 +2,15 @@
 
 Prioritized under the v2 lens ([00 — premises P-A/P-B, rubric R7](research/00-methodology-and-rubrics.md)): items must pass founder-fit gates (dormancy tolerance, energy return, affordable loss) before opportunity scores matter. Out-of-scope and currently intractable items are kept honestly in the **Icebox** with explicit revisit triggers instead of being silently dropped.
 
+## Owner actions (the bot cannot do these — everything below eventually gates on them)
+
+| # | Action | Unblocks |
+|---|--------|----------|
+| O1 | **Open/merge the PR chain**: [`issue-2-target-measure`](https://github.com/hzmchen/KONjecture-alpha/tree/issue-2-target-measure) → [`now-items-implementation`](https://github.com/hzmchen/KONjecture-alpha/pull/new/now-items-implementation) (stacked; PAT can push branches but not open PRs) | everything landing on `main`; CI on main |
+| O2 | **Close [Issue #2](https://github.com/hzmchen/KONjecture-alpha/issues/2)** referencing [research/09](research/09-target-measure-decision.md) (option 4 confirmed 2026-07-06; bot cannot comment on issues) | bookkeeping |
+| O3 | **Create a free ALFRED API key** (alfred.stlouisfed.org) and provide it (e.g. `ALFRED_API_KEY` env var / repo secret) | US outcome vintages beyond `advance` → `fixed_h<k>` target rule → D2 → the scientific leaderboard default |
+| O4 | **Sign off D1 + D2** ([09 §3](research/09-target-measure-decision.md)): per-region "first release" mapping and the fixed-horizon k | X2 scoring |
+
 ## Now (first concrete steps)
 
 | # | Item | Why now | Notes |
