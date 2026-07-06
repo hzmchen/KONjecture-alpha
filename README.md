@@ -24,12 +24,14 @@ Prioritized next steps and the icebox live in [TODO.md](TODO.md). Project premis
 
 ## Implementation (started 2026-07-06)
 
+**Pure R** (single runtime by design, ported from the initial Python implementation 2026-07-06 and validated output-identical; `renv.lock` pins the package versions). `targets::tar_make()` in `pipeline/` is the single build entry point: raw cache → archive → models → site.
+
 | Dir | What | Status |
 |---|---|---|
 | [docs/schema.md](docs/schema.md) | Archive schema v0.1: outcome-as-of-vintage, target rules, hubverse mapping | v0.1 |
 | [ingest/](ingest/README.md) | Raw downloads (manifest + SHA256) → normalized `data/archive/` parquet/csv | N4 seeded: 4 sources, 3,285 forecasts, 59 outcomes |
 | [data/](data/) | `raw/` upstream cache · `archive/` forecasts, outcomes, model output | append-only |
-| [site/](site/build_site.py) | Static Wizard-of-Oz comparison page (self-contained HTML+SVG) | N3 built |
-| [pipeline/](pipeline/README.md) | `targets` + `dfms` nowcast spike: AR(2) benchmark + DFM bridge → hubverse-style quantiles | N2 spike |
+| [site/](site/build_site.R) | Static Wizard-of-Oz comparison page (self-contained HTML+SVG) | N3 built |
+| [pipeline/](pipeline/README.md) | `targets` graph: archive build + AR(2)/DFM-bridge nowcasts (hubverse-style quantiles) + site build | N2 spike passed; unified |
 
-Everything runs offline from the committed raw cache; network is touched only by deliberate one-off `ingest/download_raw.py` runs. Best-effort hobby project: **no SLA, no update schedule** — artifacts announce their own staleness.
+Everything runs offline from the committed raw cache; network is touched only by deliberate one-off `Rscript ingest/download_raw.R` runs. Best-effort hobby project: **no SLA, no update schedule** — artifacts announce their own staleness.

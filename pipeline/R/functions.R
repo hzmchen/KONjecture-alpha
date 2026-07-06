@@ -93,6 +93,15 @@ as_model_output <- function(fc, run_date) {
   )
 }
 
+# run a standalone build script (archive/site) in a fresh R session and return
+# its output paths, so targets can track script+inputs -> outputs as files
+run_build_script <- function(script, deps, outputs) {
+  invisible(deps)  # named so targets wires the dependency edge
+  callr::rscript(script, show = TRUE)
+  stopifnot(file.exists(outputs))
+  outputs
+}
+
 # append-only parquet archive: add rows whose key is not present yet
 append_model_output <- function(rows, path) {
   key <- function(d) paste(d$model_id, d$forecast_date, d$target_period,

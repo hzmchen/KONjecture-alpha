@@ -1,12 +1,33 @@
-# N2 riskiest-assumption spike: targets pipeline skeleton (see pipeline/README.md)
-# Run from pipeline/:  Rscript -e 'targets::tar_make()'
+# Single entry point for the whole build: raw cache -> normalized archive ->
+# nowcast models -> static site. Run from pipeline/:  Rscript -e 'targets::tar_make()'
+# The network stage (ingest/download_raw.R) stays a separate, deliberate manual
+# step — the pipeline itself never touches the network. See pipeline/README.md.
 library(targets)
 tar_source("R/functions.R")
 tar_option_set(packages = c("dfms", "nanoparquet"))
 
 list(
+  # --- raw cache (files tracked, never fetched here) ---
+  tar_target(raw_gdpnow, "../data/raw/gdpnow_tracking.xlsx", format = "file"),
+  tar_target(raw_nyfed, "../data/raw/nyfed_staff_nowcast.xlsx", format = "file"),
+  tar_target(raw_philly, "../data/raw/spf_philly_meangrowth.xlsx", format = "file"),
+  tar_target(raw_ecb, "../data/raw/spf_ecb_individual.zip", format = "file"),
+  tar_target(raw_manifest, "../data/raw/manifest.json", format = "file"),
   tar_target(monthly_file, "../data/raw/fred_monthly_indicators.csv", format = "file"),
   tar_target(gdp_file, "../data/raw/fred_gdp_growth.csv", format = "file"),
+
+  # --- N4: normalized vintage-correct archive (ingest/build_archive.R) ---
+  tar_target(archive_script, "../ingest/build_archive.R", format = "file"),
+  tar_target(archive_files,
+             run_build_script(archive_script,
+                              c(raw_gdpnow, raw_nyfed, raw_philly, raw_ecb, raw_manifest),
+                              c("../data/archive/forecasts.parquet",
+                                "../data/archive/outcomes.parquet",
+                                "../data/archive/forecasts.csv",
+                                "../data/archive/outcomes.csv")),
+             format = "file"),
+
+  # --- N2: nowcast models (latest-vintage FRED inputs) ---
   tar_target(monthly_raw, read_monthly(monthly_file)),
   tar_target(gdp, read_gdp(gdp_file)),
   tar_target(X, transform_monthly(monthly_raw)),
@@ -18,5 +39,13 @@ list(
                                  as_model_output(fc_dfm, run_date))),
   tar_target(archived, append_model_output(model_output,
                                            "../data/archive/model_output.parquet"),
+             format = "file"),
+
+  # --- N3: static comparison page (site/build_site.R) ---
+  tar_target(site_script, "../site/build_site.R", format = "file"),
+  tar_target(site_template, "../site/template.html", format = "file"),
+  tar_target(site_html,
+             run_build_script(site_script, c(archive_files, site_template),
+                              "../site/index.html"),
              format = "file")
 )

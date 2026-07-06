@@ -1,20 +1,22 @@
-# N2 riskiest-assumption spike — `targets` pipeline skeleton
+# `targets` pipeline — single entry point for the whole build
 
-**Question the spike answers:** can one person (with AI assistance) run the whole chain —
+Grew out of the N2 riskiest-assumption spike (**passed**: can one person run
 data pull → transform → benchmark + factor model → probabilistic output → append-only
-archive — reproducibly, with zero standing infrastructure? ([TODO N2](../TODO.md))
-
-## Run
+archive, reproducibly, with zero standing infrastructure? — [TODO N2](../TODO.md)) and
+now orchestrates everything downstream of the network:
 
 ```sh
 cd pipeline
 Rscript -e 'targets::tar_make()'
 ```
 
-Reads the cached FRED csvs from `data/raw/` (pulled once by `ingest/download_raw.py`;
-the pipeline itself never touches the network) and appends to
-`data/archive/model_output.parquet` (+ csv mirror). Idempotent: re-running on the same
-inputs and date adds nothing (keyed dedupe).
+builds, with dependency tracking and skipping: **raw cache → normalized archive**
+(`ingest/build_archive.R`) **→ nowcast models → static site** (`site/build_site.R`).
+The network stage (`Rscript ingest/download_raw.R`) is deliberately *outside* the
+graph — downloads happen rarely and consciously, never as a build side effect.
+Model output appends to `data/archive/model_output.parquet` (+ csv mirror).
+Idempotent: re-running on the same inputs and date adds nothing (keyed dedupe,
+all targets skip).
 
 ## What it is — and is deliberately not
 

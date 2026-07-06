@@ -1,9 +1,9 @@
 # Ingestion layer (N4 — archive seeding)
 
-Two stages, strictly separated:
+Two stages, strictly separated (pure R; the original Python implementation was ported 2026-07-06 and validated output-identical against it):
 
-1. **`download_raw.py`** — network stage. One polite GET per source into `data/raw/` with SHA256 + retrieval-time manifest. Idempotent: cached files are never re-fetched unless `--refresh`. Run rarely and deliberately (dependency-register discipline, [08 §4](../research/08-pre-mortem.md)).
-2. **`build_archive.py`** — pure local transform `data/raw/ → data/archive/{forecasts,outcomes}.{parquet,csv}` per [docs/schema.md](../docs/schema.md). Deterministic; safe to re-run anytime.
+1. **`download_raw.R`** — network stage. One polite GET per source into `data/raw/` with SHA256 + retrieval-time manifest (`Rscript ingest/download_raw.R [--refresh] [--only id …]`). Idempotent: cached files are never re-fetched unless `--refresh`. Run rarely and deliberately (dependency-register discipline, [08 §4](../research/08-pre-mortem.md)); it is intentionally **not** part of the `targets` graph.
+2. **`build_archive.R`** — pure local transform `data/raw/ → data/archive/{forecasts,outcomes}.{parquet,csv}` per [docs/schema.md](../docs/schema.md). Deterministic; safe to re-run anytime — standalone (`Rscript ingest/build_archive.R`) or as part of `targets::tar_make()` in [pipeline/](../pipeline/README.md), which tracks raw files → archive → site.
 
 ## Source register (per-source dependency register seed, pre-mortem countermeasure)
 
@@ -23,3 +23,5 @@ Two stages, strictly separated:
 ## Validation habits that caught real bugs
 
 Every build prints per-source row counts and date spans; after any parser change, spot-check one hand-verifiable number per source against the raw file (e.g. GDPNow's final 2026Q1 nowcast 1.2392 vs TrackRecord; ECB 2026Q2-round individuals ~0.8–1.3 ⇒ mean ≈ 0.96, *not* 3.4 — the 3.4 came from unemployment rows leaking through a bad section boundary). Validation attention is the bottleneck (P-B); these checks are cheap and stay.
+
+The R port was validated row-for-row against the Python build's outputs. One known, accepted difference: the ECB 2000Q3-round mean for target 2002 is **2.9222** (exact mean 2.92225; R's half-even rounding at the 4th decimal is correct where Python's float `round()` gave 2.9223).
