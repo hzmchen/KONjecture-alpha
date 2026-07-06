@@ -1,0 +1,172 @@
+<title>KONjecture — GDP nowcast comparison (2026Q2)</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#1baf7a; --c3:#eda100; --warnbg:#fdf3dc; --warnink:#6b4d00;
+}
+@media (prefers-color-scheme: dark){:root{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --warnbg:#2b230e; --warnink:#e8c377;
+}}
+:root[data-theme="light"]{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+  --c1:#2a78d6; --c2:#1baf7a; --c3:#eda100; --warnbg:#fdf3dc; --warnink:#6b4d00;
+}
+:root[data-theme="dark"]{
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --border:rgba(255,255,255,.10);
+  --c1:#3987e5; --c2:#199e70; --c3:#c98500; --warnbg:#2b230e; --warnink:#e8c377;
+}
+body{background:var(--page);color:var(--ink);font:15px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;margin:0}
+main{max-width:940px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:22px}
+h1{font-size:26px;margin:0;text-wrap:balance}
+h2{font-size:17px;margin:0 0 4px}
+.sub{color:var(--ink2);margin:2px 0 0}
+.eyebrow{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.banner{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--ink2);font-size:13.5px;display:flex;gap:8px;flex-wrap:wrap}
+.banner strong{color:var(--ink)}
+#stale{display:none;background:var(--warnbg);color:var(--warnink);border-color:transparent}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px 18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.tile-k{font-size:12.5px;color:var(--ink2);display:flex;align-items:center;gap:7px}
+.tile-v{font-size:32px;font-weight:650;margin-top:2px}
+.tile-u{font-size:13px;font-weight:400;color:var(--muted);margin-left:4px}
+.tile-m{font-size:12px;color:var(--muted)}
+.chip{width:10px;height:10px;border-radius:3px;display:inline-block}
+.chip.s1{background:var(--c1)} .chip.s2{background:var(--c2)} .chip.s3{background:var(--c3)}
+.adv-chip{width:10px;height:10px;display:inline-block;background:var(--ink);transform:rotate(45deg) scale(.8)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin:6px 0 4px}
+.legend span{display:flex;align-items:center;gap:6px}
+svg{width:100%;height:auto;display:block}
+.grid{stroke:var(--grid);stroke-width:1}
+.axis{stroke:var(--axis);stroke-width:1}
+.tick,.ylab{fill:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}
+.ylab{fill:var(--ink2)}
+.line{fill:none;stroke-width:2;stroke-linejoin:round}
+.line.s1{stroke:var(--c1)} .line.s2{stroke:var(--c2)} .line.s3{stroke:var(--c3)}
+.dot.s1{fill:var(--c1)} .dot.s2{fill:var(--c2)} .dot.s3{fill:var(--c3)}
+.dot{stroke:var(--surface);stroke-width:2}
+.dl{font-size:12px;font-weight:600}
+.dl.s1{fill:var(--c1)} .dl.s2{fill:var(--c2)} .dl.s3{fill:var(--c3)}
+.adv{fill:var(--ink)}
+.hit{fill:transparent;cursor:default}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--page);font-size:12.5px;
+     padding:5px 9px;border-radius:6px;opacity:0;transition:opacity .12s;max-width:320px;z-index:9;font-variant-numeric:tabular-nums}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+table.narrow{width:auto;min-width:340px}
+th{text-align:left;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+th,td{padding:6px 12px 6px 0;border-bottom:1px solid var(--grid)}
+tr.mae td{color:var(--ink);font-weight:600;border-bottom:none}
+.note{font-size:13px;color:var(--ink2)}
+.note strong{color:var(--ink)}
+footer{font-size:12.5px;color:var(--muted);border-top:1px solid var(--grid);padding-top:14px}
+footer a{color:var(--ink2)}
+ul{margin:6px 0;padding-left:20px}
+@media (prefers-reduced-motion: reduce){#tip{transition:none}}
+</style>
+<main>
+<header>
+  <p class="eyebrow">KONjecture-alpha · Wizard-of-Oz prototype</p>
+  <h1>US GDP nowcasts, side by side — 2026Q2</h1>
+  <p class="sub">Official nowcasts and survey forecasts of US real GDP growth, compared against what the
+  Bureau of Economic Analysis actually announced first. No model of our own — this page tests whether the
+  comparison itself is useful.</p>
+</header>
+
+<div class="banner"><span>Data retrieved <strong>2026-07-06</strong> · page built <strong>2026-07-06</strong> ·
+static snapshot, updates event-driven, no schedule promised.</span></div>
+<div class="banner" id="stale">This snapshot is more than 45 days old. The project is likely dormant
+(by design — see the sunset note in the repository); figures below describe the situation as of 2026-07-06.</div>
+
+<section class="tiles">
+<div class="tile"><div class="tile-k"><span class="chip s1"></span>Atlanta Fed GDPNow</div>
+<div class="tile-v">1.19<span class="tile-u">% SAAR</span></div>
+<div class="tile-m">as of 2026-07-01</div></div>
+<div class="tile"><div class="tile-k"><span class="chip s2"></span>NY Fed Staff Nowcast</div>
+<div class="tile-v">2.74<span class="tile-u">% SAAR</span></div>
+<div class="tile-m">as of 2026-07-03</div></div>
+<div class="tile"><div class="tile-k"><span class="chip s3"></span>Philly Fed SPF (mean)</div>
+<div class="tile-v">2.15<span class="tile-u">% SAAR</span></div>
+<div class="tile-m">as of 2026-05-15</div></div>
+<div class="tile"><div class="tile-k"><span class="chip adv-chip"></span>BEA advance estimate</div>
+<div class="tile-v">pending</div><div class="tile-m">BEA release expected ~30 days after quarter end</div></div>
+</section>
+
+<section class="card">
+  <h2>How the 2026Q2 nowcasts evolved</h2>
+  <p class="sub">Each point is a published forecast of 2026Q2 annualized q/q growth (% SAAR), plotted on the day it was made.</p>
+  <div class="legend"><span><span class="chip s1"></span>Atlanta Fed GDPNow</span><span><span class="chip s2"></span>NY Fed Staff Nowcast</span><span><span class="chip s3"></span>Philly Fed SPF (mean)</span></div>
+  <svg viewBox="0 0 860 330" role="img" aria-label="Evolution of 2026Q2 US GDP nowcasts"><line class="grid" x1="46" y1="280.0" x2="710" y2="280.0"/><text class="tick" x="38" y="284.0" text-anchor="end">1</text><line class="grid" x1="46" y1="208.7" x2="710" y2="208.7"/><text class="tick" x="38" y="212.7" text-anchor="end">2</text><line class="grid" x1="46" y1="137.3" x2="710" y2="137.3"/><text class="tick" x="38" y="141.3" text-anchor="end">3</text><line class="grid" x1="46" y1="66.0" x2="710" y2="66.0"/><text class="tick" x="38" y="70.0" text-anchor="end">4</text><text class="tick" x="158.6" y="314" text-anchor="middle">Apr</text><text class="tick" x="336.5" y="314" text-anchor="middle">May</text><text class="tick" x="520.3" y="314" text-anchor="middle">Jun</text><text class="tick" x="698.1" y="314" text-anchor="middle">Jul</text><line class="axis" x1="46" y1="296" x2="710" y2="296"/><path class="line s1" d="M330.6,87.3 L336.5,100.3 L354.3,87.9 L360.2,84.3 L372.1,89.6 L378.0,84.0 L395.8,80.0 L401.7,79.1 L407.6,80.3 L413.6,66.6 L419.5,44.5 L455.1,47.6 L496.6,78.6 L502.5,133.5 L520.3,136.1 L532.1,123.9 L544.0,128.1 L567.7,116.6 L573.6,121.0 L579.6,131.1 L603.3,135.5 L609.2,149.3 L615.1,134.6 L656.6,131.0 L662.6,169.9 L668.5,267.5 L698.1,266.5"/><circle class="dot s1" cx="330.6" cy="87.3" r="2.5"/><circle class="dot s1" cx="336.5" cy="100.3" r="2.5"/><circle class="dot s1" cx="354.3" cy="87.9" r="2.5"/><circle class="dot s1" cx="360.2" cy="84.3" r="2.5"/><circle class="dot s1" cx="372.1" cy="89.6" r="2.5"/><circle class="dot s1" cx="378.0" cy="84.0" r="2.5"/><circle class="dot s1" cx="395.8" cy="80.0" r="2.5"/><circle class="dot s1" cx="401.7" cy="79.1" r="2.5"/><circle class="dot s1" cx="407.6" cy="80.3" r="2.5"/><circle class="dot s1" cx="413.6" cy="66.6" r="2.5"/><circle class="dot s1" cx="419.5" cy="44.5" r="2.5"/><circle class="dot s1" cx="455.1" cy="47.6" r="2.5"/><circle class="dot s1" cx="496.6" cy="78.6" r="2.5"/><circle class="dot s1" cx="502.5" cy="133.5" r="2.5"/><circle class="dot s1" cx="520.3" cy="136.1" r="2.5"/><circle class="dot s1" cx="532.1" cy="123.9" r="2.5"/><circle class="dot s1" cx="544.0" cy="128.1" r="2.5"/><circle class="dot s1" cx="567.7" cy="116.6" r="2.5"/><circle class="dot s1" cx="573.6" cy="121.0" r="2.5"/><circle class="dot s1" cx="579.6" cy="131.1" r="2.5"/><circle class="dot s1" cx="603.3" cy="135.5" r="2.5"/><circle class="dot s1" cx="609.2" cy="149.3" r="2.5"/><circle class="dot s1" cx="615.1" cy="134.6" r="2.5"/><circle class="dot s1" cx="656.6" cy="131.0" r="2.5"/><circle class="dot s1" cx="662.6" cy="169.9" r="2.5"/><circle class="dot s1" cx="668.5" cy="267.5" r="2.5"/><circle class="dot s1" cx="698.1" cy="266.5" r="2.5"/><text class="dl s1" x="706.1" y="270.5">Atlanta Fed GDPNow 1.19</text><path class="line s2" d="M46.0,160.1 L87.5,160.9 L129.0,160.1 L170.5,150.2 L212.0,165.9 L253.5,155.2 L295.0,150.9 L336.5,171.6 L378.0,166.6 L419.5,165.1 L461.0,165.1 L502.5,173.0 L544.0,160.9 L585.5,158.7 L627.0,160.1 L668.5,158.7 L710.0,155.9"/><circle class="dot s2" cx="46.0" cy="160.1" r="2.5"/><circle class="dot s2" cx="87.5" cy="160.9" r="2.5"/><circle class="dot s2" cx="129.0" cy="160.1" r="2.5"/><circle class="dot s2" cx="170.5" cy="150.2" r="2.5"/><circle class="dot s2" cx="212.0" cy="165.9" r="2.5"/><circle class="dot s2" cx="253.5" cy="155.2" r="2.5"/><circle class="dot s2" cx="295.0" cy="150.9" r="2.5"/><circle class="dot s2" cx="336.5" cy="171.6" r="2.5"/><circle class="dot s2" cx="378.0" cy="166.6" r="2.5"/><circle class="dot s2" cx="419.5" cy="165.1" r="2.5"/><circle class="dot s2" cx="461.0" cy="165.1" r="2.5"/><circle class="dot s2" cx="502.5" cy="173.0" r="2.5"/><circle class="dot s2" cx="544.0" cy="160.9" r="2.5"/><circle class="dot s2" cx="585.5" cy="158.7" r="2.5"/><circle class="dot s2" cx="627.0" cy="160.1" r="2.5"/><circle class="dot s2" cx="668.5" cy="158.7" r="2.5"/><circle class="dot s2" cx="710.0" cy="155.9" r="2.5"/><text class="dl s2" x="718.0" y="159.9">NY Fed Staff Nowcast 2.74</text><circle class="dot s3" cx="419.5" cy="198.1" r="4"/><text class="dl s3" x="427.5" y="202.1">Philly Fed SPF 2.15</text><circle class="hit" cx="330.6" cy="87.3" r="11" data-tip="Atlanta Fed GDPNow · 2026-04-30 · 3.70% SAAR"/><circle class="hit" cx="336.5" cy="100.3" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-01 · 3.52% SAAR"/><circle class="hit" cx="354.3" cy="87.9" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-04 · 3.69% SAAR"/><circle class="hit" cx="360.2" cy="84.3" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-05 · 3.74% SAAR"/><circle class="hit" cx="372.1" cy="89.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-07 · 3.67% SAAR"/><circle class="hit" cx="378.0" cy="84.0" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-08 · 3.75% SAAR"/><circle class="hit" cx="395.8" cy="80.0" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-11 · 3.80% SAAR"/><circle class="hit" cx="401.7" cy="79.1" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-12 · 3.82% SAAR"/><circle class="hit" cx="407.6" cy="80.3" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-13 · 3.80% SAAR"/><circle class="hit" cx="413.6" cy="66.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-14 · 3.99% SAAR"/><circle class="hit" cx="419.5" cy="44.5" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-15 · 4.30% SAAR"/><circle class="hit" cx="455.1" cy="47.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-21 · 4.26% SAAR"/><circle class="hit" cx="496.6" cy="78.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-28 · 3.82% SAAR"/><circle class="hit" cx="502.5" cy="133.5" r="11" data-tip="Atlanta Fed GDPNow · 2026-05-29 · 3.05% SAAR"/><circle class="hit" cx="520.3" cy="136.1" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-01 · 3.02% SAAR"/><circle class="hit" cx="532.1" cy="123.9" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-03 · 3.19% SAAR"/><circle class="hit" cx="544.0" cy="128.1" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-05 · 3.13% SAAR"/><circle class="hit" cx="567.7" cy="116.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-09 · 3.29% SAAR"/><circle class="hit" cx="573.6" cy="121.0" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-10 · 3.23% SAAR"/><circle class="hit" cx="579.6" cy="131.1" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-11 · 3.09% SAAR"/><circle class="hit" cx="603.3" cy="135.5" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-15 · 3.02% SAAR"/><circle class="hit" cx="609.2" cy="149.3" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-16 · 2.83% SAAR"/><circle class="hit" cx="615.1" cy="134.6" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-17 · 3.04% SAAR"/><circle class="hit" cx="656.6" cy="131.0" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-24 · 3.09% SAAR"/><circle class="hit" cx="662.6" cy="169.9" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-25 · 2.54% SAAR"/><circle class="hit" cx="668.5" cy="267.5" r="11" data-tip="Atlanta Fed GDPNow · 2026-06-26 · 1.18% SAAR"/><circle class="hit" cx="698.1" cy="266.5" r="11" data-tip="Atlanta Fed GDPNow · 2026-07-01 · 1.19% SAAR"/><circle class="hit" cx="46.0" cy="160.1" r="11" data-tip="NY Fed Staff Nowcast · 2026-03-13 · 2.68% SAAR"/><circle class="hit" cx="87.5" cy="160.9" r="11" data-tip="NY Fed Staff Nowcast · 2026-03-20 · 2.67% SAAR"/><circle class="hit" cx="129.0" cy="160.1" r="11" data-tip="NY Fed Staff Nowcast · 2026-03-27 · 2.68% SAAR"/><circle class="hit" cx="170.5" cy="150.2" r="11" data-tip="NY Fed Staff Nowcast · 2026-04-03 · 2.82% SAAR"/><circle class="hit" cx="212.0" cy="165.9" r="11" data-tip="NY Fed Staff Nowcast · 2026-04-10 · 2.60% SAAR"/><circle class="hit" cx="253.5" cy="155.2" r="11" data-tip="NY Fed Staff Nowcast · 2026-04-17 · 2.75% SAAR"/><circle class="hit" cx="295.0" cy="150.9" r="11" data-tip="NY Fed Staff Nowcast · 2026-04-24 · 2.81% SAAR"/><circle class="hit" cx="336.5" cy="171.6" r="11" data-tip="NY Fed Staff Nowcast · 2026-05-01 · 2.52% SAAR"/><circle class="hit" cx="378.0" cy="166.6" r="11" data-tip="NY Fed Staff Nowcast · 2026-05-08 · 2.59% SAAR"/><circle class="hit" cx="419.5" cy="165.1" r="11" data-tip="NY Fed Staff Nowcast · 2026-05-15 · 2.61% SAAR"/><circle class="hit" cx="461.0" cy="165.1" r="11" data-tip="NY Fed Staff Nowcast · 2026-05-22 · 2.61% SAAR"/><circle class="hit" cx="502.5" cy="173.0" r="11" data-tip="NY Fed Staff Nowcast · 2026-05-29 · 2.50% SAAR"/><circle class="hit" cx="544.0" cy="160.9" r="11" data-tip="NY Fed Staff Nowcast · 2026-06-05 · 2.67% SAAR"/><circle class="hit" cx="585.5" cy="158.7" r="11" data-tip="NY Fed Staff Nowcast · 2026-06-12 · 2.70% SAAR"/><circle class="hit" cx="627.0" cy="160.1" r="11" data-tip="NY Fed Staff Nowcast · 2026-06-19 · 2.68% SAAR"/><circle class="hit" cx="668.5" cy="158.7" r="11" data-tip="NY Fed Staff Nowcast · 2026-06-26 · 2.70% SAAR"/><circle class="hit" cx="710.0" cy="155.9" r="11" data-tip="NY Fed Staff Nowcast · 2026-07-03 · 2.74% SAAR"/><circle class="hit" cx="419.5" cy="198.1" r="11" data-tip="Philly Fed SPF (mean) · 2026-05-15 · 2.15% SAAR"/></svg>
+</section>
+
+<section class="card">
+  <h2>Track record: final nowcast vs first print</h2>
+  <p class="sub">For each completed quarter: the last forecast published before BEA's advance estimate (dots)
+  against the advance estimate itself (◆). Scored against the <strong>first release</strong> — see target note below.</p>
+  <div class="legend"><span><span class="chip s1"></span>Atlanta Fed GDPNow</span><span><span class="chip s2"></span>NY Fed Staff Nowcast</span><span><span class="chip s3"></span>Philly Fed SPF (mean)</span> <span><span class="adv-chip"></span>BEA advance</span></div>
+  <svg viewBox="0 0 860 464" role="img" aria-label="Final nowcasts vs BEA advance estimate, last 12 quarters"><line class="grid" x1="184.6" y1="26" x2="184.6" y2="434"/><text class="tick" x="184.6" y="452" text-anchor="middle">-2</text><line class="grid" x1="347.9" y1="26" x2="347.9" y2="434"/><text class="tick" x="347.9" y="452" text-anchor="middle">0</text><line class="grid" x1="511.2" y1="26" x2="511.2" y2="434"/><text class="tick" x="511.2" y="452" text-anchor="middle">2</text><line class="grid" x1="674.4" y1="26" x2="674.4" y2="434"/><text class="tick" x="674.4" y="452" text-anchor="middle">4</text><line class="axis" x1="347.9" y1="26" x2="347.9" y2="434"/><text class="ylab" x="74" y="47.0" text-anchor="end">2026Q1</text><circle class="dot s1" cx="449.0" cy="43.0" r="5"/><circle class="dot s2" cx="540.5" cy="43.0" r="5"/><circle class="dot s3" cx="555.1" cy="43.0" r="5"/><path class="adv" d="M510.3,36.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="81.0" text-anchor="end">2025Q4</text><circle class="dot s1" cx="592.7" cy="77.0" r="5"/><circle class="dot s2" cx="570.8" cy="77.0" r="5"/><circle class="dot s3" cx="453.7" cy="77.0" r="5"/><path class="adv" d="M464.0,70.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="115.0" text-anchor="end">2025Q3</text><circle class="dot s1" cx="631.4" cy="111.0" r="5"/><circle class="dot s2" cx="536.5" cy="111.0" r="5"/><circle class="dot s3" cx="464.1" cy="111.0" r="5"/><path class="adv" d="M702.4,104.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="149.0" text-anchor="end">2025Q2</text><circle class="dot s1" cx="584.8" cy="145.0" r="5"/><circle class="dot s2" cx="485.0" cy="145.0" r="5"/><circle class="dot s3" cx="459.3" cy="145.0" r="5"/><path class="adv" d="M590.2,138.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="183.0" text-anchor="end">2025Q1</text><circle class="dot s1" cx="124.8" cy="179.0" r="5"/><circle class="dot s2" cx="562.7" cy="179.0" r="5"/><circle class="dot s3" cx="560.2" cy="179.0" r="5"/><path class="adv" d="M325.3,172.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="217.0" text-anchor="end">2024Q4</text><circle class="dot s1" cx="533.3" cy="213.0" r="5"/><circle class="dot s2" cx="557.1" cy="213.0" r="5"/><circle class="dot s3" cx="503.3" cy="213.0" r="5"/><path class="adv" d="M531.7,206.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="251.0" text-anchor="end">2024Q3</text><circle class="dot s1" cx="599.1" cy="247.0" r="5"/><circle class="dot s2" cx="592.1" cy="247.0" r="5"/><circle class="dot s3" cx="500.6" cy="247.0" r="5"/><path class="adv" d="M578.5,240.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="285.0" text-anchor="end">2024Q2</text><circle class="dot s1" cx="561.2" cy="281.0" r="5"/><circle class="dot s2" cx="512.1" cy="281.0" r="5"/><circle class="dot s3" cx="511.7" cy="281.0" r="5"/><path class="adv" d="M579.7,274.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="319.0" text-anchor="end">2024Q1</text><circle class="dot s1" cx="568.7" cy="315.0" r="5"/><circle class="dot s2" cx="529.8" cy="315.0" r="5"/><circle class="dot s3" cx="518.6" cy="315.0" r="5"/><path class="adv" d="M477.7,308.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="353.0" text-anchor="end">2023Q4</text><circle class="dot s1" cx="542.5" cy="349.0" r="5"/><circle class="dot s2" cx="544.6" cy="349.0" r="5"/><circle class="dot s3" cx="438.3" cy="349.0" r="5"/><path class="adv" d="M615.7,342.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="387.0" text-anchor="end">2023Q3</text><circle class="dot s1" cx="789.2" cy="383.0" r="5"/><circle class="dot s2" cx="556.1" cy="383.0" r="5"/><circle class="dot s3" cx="494.0" cy="383.0" r="5"/><path class="adv" d="M746.1,376.0 l6,7 l-6,7 l-6,-7 z"/><text class="ylab" x="74" y="421.0" text-anchor="end">2023Q2</text><circle class="dot s1" cx="544.8" cy="417.0" r="5"/><circle class="dot s2" cx="436.0" cy="417.0" r="5"/><circle class="dot s3" cx="416.7" cy="417.0" r="5"/><path class="adv" d="M545.0,410.0 l6,7 l-6,7 l-6,-7 z"/><circle class="hit" cx="449.0" cy="43.0" r="11" data-tip="Atlanta Fed GDPNow · 2026Q1 · 1.24% (advance 1.99%)"/><circle class="hit" cx="540.5" cy="43.0" r="11" data-tip="NY Fed Staff Nowcast · 2026Q1 · 2.36% (advance 1.99%)"/><circle class="hit" cx="555.1" cy="43.0" r="11" data-tip="Philly Fed SPF (mean) · 2026Q1 · 2.54% (advance 1.99%)"/><circle class="hit" cx="510.3" cy="43.0" r="11" data-tip="BEA advance estimate · 2026Q1 · 1.99% (published 2026-04-30)"/><circle class="hit" cx="592.7" cy="77.0" r="11" data-tip="Atlanta Fed GDPNow · 2025Q4 · 3.00% (advance 1.42%)"/><circle class="hit" cx="570.8" cy="77.0" r="11" data-tip="NY Fed Staff Nowcast · 2025Q4 · 2.73% (advance 1.42%)"/><circle class="hit" cx="453.7" cy="77.0" r="11" data-tip="Philly Fed SPF (mean) · 2025Q4 · 1.30% (advance 1.42%)"/><circle class="hit" cx="464.0" cy="77.0" r="11" data-tip="BEA advance estimate · 2025Q4 · 1.42% (published 2026-02-20)"/><circle class="hit" cx="631.4" cy="111.0" r="11" data-tip="Atlanta Fed GDPNow · 2025Q3 · 3.47% (advance 4.34%)"/><circle class="hit" cx="536.5" cy="111.0" r="11" data-tip="NY Fed Staff Nowcast · 2025Q3 · 2.31% (advance 4.34%)"/><circle class="hit" cx="464.1" cy="111.0" r="11" data-tip="Philly Fed SPF (mean) · 2025Q3 · 1.42% (advance 4.34%)"/><circle class="hit" cx="702.4" cy="111.0" r="11" data-tip="BEA advance estimate · 2025Q3 · 4.34% (published 2025-12-23)"/><circle class="hit" cx="584.8" cy="145.0" r="11" data-tip="Atlanta Fed GDPNow · 2025Q2 · 2.90% (advance 2.97%)"/><circle class="hit" cx="485.0" cy="145.0" r="11" data-tip="NY Fed Staff Nowcast · 2025Q2 · 1.68% (advance 2.97%)"/><circle class="hit" cx="459.3" cy="145.0" r="11" data-tip="Philly Fed SPF (mean) · 2025Q2 · 1.36% (advance 2.97%)"/><circle class="hit" cx="590.2" cy="145.0" r="11" data-tip="BEA advance estimate · 2025Q2 · 2.97% (published 2025-07-30)"/><circle class="hit" cx="124.8" cy="179.0" r="11" data-tip="Atlanta Fed GDPNow · 2025Q1 · -2.73% (advance -0.28%)"/><circle class="hit" cx="562.7" cy="179.0" r="11" data-tip="NY Fed Staff Nowcast · 2025Q1 · 2.63% (advance -0.28%)"/><circle class="hit" cx="560.2" cy="179.0" r="11" data-tip="Philly Fed SPF (mean) · 2025Q1 · 2.60% (advance -0.28%)"/><circle class="hit" cx="325.3" cy="179.0" r="11" data-tip="BEA advance estimate · 2025Q1 · -0.28% (published 2025-04-30)"/><circle class="hit" cx="533.3" cy="213.0" r="11" data-tip="Atlanta Fed GDPNow · 2024Q4 · 2.27% (advance 2.25%)"/><circle class="hit" cx="557.1" cy="213.0" r="11" data-tip="NY Fed Staff Nowcast · 2024Q4 · 2.56% (advance 2.25%)"/><circle class="hit" cx="503.3" cy="213.0" r="11" data-tip="Philly Fed SPF (mean) · 2024Q4 · 1.90% (advance 2.25%)"/><circle class="hit" cx="531.7" cy="213.0" r="11" data-tip="BEA advance estimate · 2024Q4 · 2.25% (published 2025-01-30)"/><circle class="hit" cx="599.1" cy="247.0" r="11" data-tip="Atlanta Fed GDPNow · 2024Q3 · 3.08% (advance 2.82%)"/><circle class="hit" cx="592.1" cy="247.0" r="11" data-tip="NY Fed Staff Nowcast · 2024Q3 · 2.99% (advance 2.82%)"/><circle class="hit" cx="500.6" cy="247.0" r="11" data-tip="Philly Fed SPF (mean) · 2024Q3 · 1.87% (advance 2.82%)"/><circle class="hit" cx="578.5" cy="247.0" r="11" data-tip="BEA advance estimate · 2024Q3 · 2.82% (published 2024-09-30)"/><circle class="hit" cx="561.2" cy="281.0" r="11" data-tip="Atlanta Fed GDPNow · 2024Q2 · 2.61% (advance 2.84%)"/><circle class="hit" cx="512.1" cy="281.0" r="11" data-tip="NY Fed Staff Nowcast · 2024Q2 · 2.01% (advance 2.84%)"/><circle class="hit" cx="511.7" cy="281.0" r="11" data-tip="Philly Fed SPF (mean) · 2024Q2 · 2.01% (advance 2.84%)"/><circle class="hit" cx="579.7" cy="281.0" r="11" data-tip="BEA advance estimate · 2024Q2 · 2.84% (published 2024-07-25)"/><circle class="hit" cx="568.7" cy="315.0" r="11" data-tip="Atlanta Fed GDPNow · 2024Q1 · 2.70% (advance 1.59%)"/><circle class="hit" cx="529.8" cy="315.0" r="11" data-tip="NY Fed Staff Nowcast · 2024Q1 · 2.23% (advance 1.59%)"/><circle class="hit" cx="518.6" cy="315.0" r="11" data-tip="Philly Fed SPF (mean) · 2024Q1 · 2.09% (advance 1.59%)"/><circle class="hit" cx="477.7" cy="315.0" r="11" data-tip="BEA advance estimate · 2024Q1 · 1.59% (published 2024-04-25)"/><circle class="hit" cx="542.5" cy="349.0" r="11" data-tip="Atlanta Fed GDPNow · 2023Q4 · 2.38% (advance 3.28%)"/><circle class="hit" cx="544.6" cy="349.0" r="11" data-tip="NY Fed Staff Nowcast · 2023Q4 · 2.41% (advance 3.28%)"/><circle class="hit" cx="438.3" cy="349.0" r="11" data-tip="Philly Fed SPF (mean) · 2023Q4 · 1.11% (advance 3.28%)"/><circle class="hit" cx="615.7" cy="349.0" r="11" data-tip="BEA advance estimate · 2023Q4 · 3.28% (published 2024-01-25)"/><circle class="hit" cx="789.2" cy="383.0" r="11" data-tip="Atlanta Fed GDPNow · 2023Q3 · 5.41% (advance 4.88%)"/><circle class="hit" cx="556.1" cy="383.0" r="11" data-tip="NY Fed Staff Nowcast · 2023Q3 · 2.55% (advance 4.88%)"/><circle class="hit" cx="494.0" cy="383.0" r="11" data-tip="Philly Fed SPF (mean) · 2023Q3 · 1.79% (advance 4.88%)"/><circle class="hit" cx="746.1" cy="383.0" r="11" data-tip="BEA advance estimate · 2023Q3 · 4.88% (published 2023-10-26)"/><circle class="hit" cx="544.8" cy="417.0" r="11" data-tip="Atlanta Fed GDPNow · 2023Q2 · 2.41% (advance 2.41%)"/><circle class="hit" cx="436.0" cy="417.0" r="11" data-tip="NY Fed Staff Nowcast · 2023Q2 · 1.08% (advance 2.41%)"/><circle class="hit" cx="416.7" cy="417.0" r="11" data-tip="Philly Fed SPF (mean) · 2023Q2 · 0.84% (advance 2.41%)"/><circle class="hit" cx="545.0" cy="417.0" r="11" data-tip="BEA advance estimate · 2023Q2 · 2.41% (published 2023-07-27)"/></svg>
+</section>
+
+<section class="card">
+  <h2>Table view</h2>
+  <div class="tablewrap"><table><thead><tr><th>Quarter</th><th>Atlanta Fed GDPNow</th><th>NY Fed Staff Nowcast</th><th>Philly Fed SPF (mean)</th><th>BEA advance</th><th>Advance published</th></tr></thead>
+<tbody><tr><td>2026Q1</td><td>1.24</td><td>2.36</td><td>2.54</td><td><strong>1.99</strong></td><td>2026-04-30</td></tr><tr><td>2025Q4</td><td>3.00</td><td>2.73</td><td>1.30</td><td><strong>1.42</strong></td><td>2026-02-20</td></tr><tr><td>2025Q3</td><td>3.47</td><td>2.31</td><td>1.42</td><td><strong>4.34</strong></td><td>2025-12-23</td></tr><tr><td>2025Q2</td><td>2.90</td><td>1.68</td><td>1.36</td><td><strong>2.97</strong></td><td>2025-07-30</td></tr><tr><td>2025Q1</td><td>-2.73</td><td>2.63</td><td>2.60</td><td><strong>-0.28</strong></td><td>2025-04-30</td></tr><tr><td>2024Q4</td><td>2.27</td><td>2.56</td><td>1.90</td><td><strong>2.25</strong></td><td>2025-01-30</td></tr><tr><td>2024Q3</td><td>3.08</td><td>2.99</td><td>1.87</td><td><strong>2.82</strong></td><td>2024-09-30</td></tr><tr><td>2024Q2</td><td>2.61</td><td>2.01</td><td>2.01</td><td><strong>2.84</strong></td><td>2024-07-25</td></tr><tr><td>2024Q1</td><td>2.70</td><td>2.23</td><td>2.09</td><td><strong>1.59</strong></td><td>2024-04-25</td></tr><tr><td>2023Q4</td><td>2.38</td><td>2.41</td><td>1.11</td><td><strong>3.28</strong></td><td>2024-01-25</td></tr><tr><td>2023Q3</td><td>5.41</td><td>2.55</td><td>1.79</td><td><strong>4.88</strong></td><td>2023-10-26</td></tr><tr><td>2023Q2</td><td>2.41</td><td>1.08</td><td>0.84</td><td><strong>2.41</strong></td><td>2023-07-27</td></tr>
+<tr class="mae"><td>MAE (common sample, n=12)</td><td>0.73</td><td>1.20</td><td>1.46</td><td>—</td><td>—</td></tr></tbody></table></div>
+  <p class="note">MAE = mean absolute error vs the advance estimate, on the quarters where all three
+  sources are available (NY Fed relaunch limits the common sample). GDPNow's full-archive MAE since 2011
+  over 59 quarters is <strong>0.79 pp</strong>. Philadelphia SPF is a quarterly survey — its "final"
+  value is one mid-quarter round, at an information disadvantage vs daily/weekly trackers; the comparison
+  is disclosed, not handicapped.</p>
+</section>
+
+<section class="card">
+  <h2>Euro area — ECB Survey of Professional Forecasters</h2>
+  <p class="sub">Latest round (2026-04-15): mean point forecasts of euro-area real GDP growth.</p>
+  <div class="tablewrap"><table class="narrow"><thead><tr><th>Target period</th><th>Mean point forecast (% y-o-y)</th></tr></thead><tbody><tr><td>2026</td><td>0.96</td></tr><tr><td>2026Q4</td><td>0.96</td></tr><tr><td>2027</td><td>1.27</td></tr><tr><td>2027Q4</td><td>1.35</td></tr><tr><td>2028</td><td>1.33</td></tr><tr><td>2030</td><td>1.27</td></tr></tbody></table></div>
+  <p class="note">ECB SPF targets <strong>year-on-year</strong> growth for calendar years and rolling quarters —
+  not convertible to the q/q measure above, so it is shown separately rather than forced onto the same chart
+  (units discipline per the archive schema; euro-area <em>outcome</em> ingestion is a documented next step).</p>
+</section>
+
+<section class="card">
+  <h2>What "right" means here — the target measure</h2>
+  <p class="note">GDP is revised for years, so every score must name its target. This page scores against the
+  <strong>first release</strong> (BEA advance) — what GDPNow itself targets and what a reader expects
+  ("what will be announced"). A second, <strong>fixed-horizon</strong> score (the value as published k quarters
+  later) is the planned scientific default for the leaderboard; it needs later outcome vintages (ALFRED) that
+  are not yet ingested, and recent quarters would show it only after k quarters have passed. Producers also
+  differ in what they implicitly target — GDPNow declares the advance estimate; others don't declare —
+  so rankings on one target can't be read as model quality alone.</p>
+</section>
+
+<footer>
+  <p>Sources: Atlanta Fed GDPNow spreadsheet · NY Fed Staff Nowcast download · Philadelphia Fed SPF mean
+  growth file · ECB SPF microdata. Exact URLs, retrieval timestamps and SHA-256 checksums:
+  <code>data/raw/manifest.json</code> in the repository. Published statistics and forecasts are facts;
+  this page compiles them for research. Best-effort hobby project — <strong>no SLA, no update schedule</strong>;
+  staleness is announced, not hidden.</p>
+</footer>
+</main>
+<div id="tip" role="status"></div>
+<script>
+(function(){
+  var tip = document.getElementById('tip');
+  document.querySelectorAll('.hit').forEach(function(h){
+    h.addEventListener('mousemove', function(ev){
+      tip.textContent = h.getAttribute('data-tip');
+      tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - 330) + 'px';
+      tip.style.top = (ev.clientY + 14) + 'px';
+      tip.style.opacity = 1;
+    });
+    h.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
+  });
+  var built = new Date('2026-07-06');
+  var days = (Date.now() - built.getTime()) / 864e5;
+  if (days > 45) document.getElementById('stale').style.display = 'block';
+})();
+</script>
