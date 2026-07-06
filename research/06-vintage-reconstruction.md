@@ -48,7 +48,7 @@
 
 **Bottom line [Strong]:** the moat argument in v1 ("an archive cannot be reconstructed later") was too pessimistic about the *past* — for the US, Germany, and the euro area, a decade-plus of point-in-time history is reconstructable in weeks of spare-time effort, not years. The moat going *forward* still holds for everything not covered by these archives (e.g. weekly granularity between official vintages, sources that publish without archiving). Implication: **the leaderboard/Review mode can ship with real historical content from v0.2**, which removes the cold-start problem and is the single most differentiating cheap win.
 
-**Direct input to Issue #2 (target measure):** the GDPNow "TrackRecord" precedent evaluates against **BEA *advance* estimates** (first publication) [S], while academic studies often target later vintages; the reconstructed archives contain *all* vintages, so the schema should store target-as-of-vintage and make the headline target a presentation choice. See the issue for the decision.
+**Direct input to Issue #2 (target measure):** the GDPNow "TrackRecord" precedent evaluates against **BEA *advance* estimates** (first publication) [S], while academic studies often target later vintages; the reconstructed archives contain *all* vintages, so the schema should store target-as-of-vintage and make the headline target a presentation choice. Decision analysis and remaining sub-decisions: [09](09-target-measure-decision.md).
 
 ## 3. Recommended first moves (feeds [TODO](../TODO.md))
 
