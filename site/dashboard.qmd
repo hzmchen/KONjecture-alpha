@@ -1,0 +1,178 @@
+---
+title: "KONjecture — GDP Nowcast Dashboard"
+format:
+  dashboard:
+    embed-resources: true
+    expandable: false
+    theme:
+      - flatly
+execute:
+  echo: false
+  warning: false
+---
+
+```{r setup}
+#| include: false
+suppressMessages(library(data.table))
+root <- Sys.getenv("KONJ_ROOT")
+root <- if (nzchar(root)) normalizePath(root) else normalizePath("..")
+source(file.path(root, "site/R/site_lib.R"))
+
+fc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/forecasts.parquet")))
+oc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/outcomes.parquet")))
+manifest <- jsonlite::read_json(file.path(root, "data/raw/manifest.json"))
+invisible(Sys.setlocale("LC_TIME", "C"))
+ctx <- build_context(fc, oc, manifest)
+last_of <- function(s) ctx$evo[[s]][.N]
+built_at <- format(Sys.Date())
+
+# chart chrome for the SVG functions (light values only: the dashboard theme is
+# deliberately single-theme light, so charts always sit on a light card)
+chart_css <- paste(
+  "<style>",
+  ":root{--surface:#ffffff;--ink:#0b0b0b;--ink2:#52514e;--muted:#898781;",
+  "--grid:#e1e0d9;--axis:#c3c2b7;--c1:#2a78d6;--c2:#1baf7a;--c3:#eda100;--page:#fcfcfb}",
+  "svg{width:100%;height:auto;display:block;max-width:960px}",
+  ".grid{stroke:var(--grid);stroke-width:1}.axis{stroke:var(--axis);stroke-width:1}",
+  ".tick,.ylab{fill:var(--muted);font-size:11.5px;font-variant-numeric:tabular-nums}.ylab{fill:var(--ink2)}",
+  ".line{fill:none;stroke-width:2;stroke-linejoin:round}",
+  ".line.s1{stroke:var(--c1)}.line.s2{stroke:var(--c2)}.line.s3{stroke:var(--c3)}",
+  ".dot{stroke:var(--surface);stroke-width:2}.dot.s1{fill:var(--c1)}.dot.s2{fill:var(--c2)}.dot.s3{fill:var(--c3)}",
+  ".dl{font-size:12px;font-weight:600}.dl.s1{fill:var(--c1)}.dl.s2{fill:var(--c2)}.dl.s3{fill:var(--c3)}",
+  ".adv{fill:var(--ink)}.hit{fill:transparent;cursor:default}",
+  ".chip{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px}",
+  ".chip.s1{background:var(--c1)}.chip.s2{background:var(--c2)}.chip.s3{background:var(--c3)}",
+  ".adv-chip{width:10px;height:10px;display:inline-block;background:var(--ink);transform:rotate(45deg) scale(.8);margin-right:5px}",
+  ".legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2);margin:2px 0 8px}",
+  ".legend span{display:flex;align-items:center}",
+  "#tip{position:fixed;pointer-events:none;background:#0b0b0b;color:#fcfcfb;font-size:12.5px;",
+  "padding:5px 9px;border-radius:6px;opacity:0;transition:opacity .12s;max-width:320px;z-index:99;font-variant-numeric:tabular-nums}",
+  "#stale{display:none;background:#fdf3dc;color:#6b4d00;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:13.5px}",
+  "</style>", sep = "\n")
+
+tip_js <- paste(
+  '<div id="tip" role="status"></div>',
+  "<script>",
+  "window.addEventListener('DOMContentLoaded', function(){",
+  "  var tip = document.getElementById('tip');",
+  "  document.querySelectorAll('.hit').forEach(function(h){",
+  "    h.addEventListener('mousemove', function(ev){",
+  "      tip.textContent = h.getAttribute('data-tip');",
+  "      tip.style.left = Math.min(ev.clientX + 14, window.innerWidth - 330) + 'px';",
+  "      tip.style.top = (ev.clientY + 14) + 'px';",
+  "      tip.style.opacity = 1;",
+  "    });",
+  "    h.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });",
+  "  });",
+  sprintf("  var days = (Date.now() - new Date('%s').getTime()) / 864e5;", built_at),
+  "  if (days > 45) document.getElementById('stale').style.display = 'block';",
+  "});",
+  "</script>", sep = "\n")
+
+legend_line <- function(with_adv = FALSE) paste0(
+  '<div class="legend">', legend_html(ctx),
+  if (with_adv) '<span><span class="adv-chip"></span>BEA advance</span>' else "",
+  "</div>")
+```
+
+## Row {height="24%"}
+
+```{r}
+#| content: valuebox
+#| title: "Atlanta Fed GDPNow"
+x <- last_of("gdpnow")
+list(icon = "graph-up", color = "light",
+     value = sprintf("%.2f%% SAAR", x$value_native))
+```
+
+```{r}
+#| content: valuebox
+#| title: "NY Fed Staff Nowcast"
+x <- last_of("nyfed")
+list(icon = "graph-up", color = "light",
+     value = sprintf("%.2f%% SAAR", x$value_native))
+```
+
+```{r}
+#| content: valuebox
+#| title: "Philly Fed SPF (mean)"
+x <- last_of("spf_philly")
+list(icon = "people", color = "light",
+     value = sprintf("%.2f%% SAAR", x$value_native))
+```
+
+```{r}
+#| content: valuebox
+#| title: !expr sprintf("BEA advance estimate, %s", ctx$q_now)
+list(icon = "hourglass-split", color = "light",
+     value = if (nrow(ctx$adv_now)) sprintf("%.2f%%", ctx$adv_now$value_native[1]) else "pending")
+```
+
+## Row {.tabset}
+
+### `r sprintf("Now: %s evolution", ctx$q_now)`
+
+```{r}
+#| results: asis
+cat(chart_css, tip_js)
+cat('<div id="stale">This snapshot is more than 45 days old. The project is likely dormant (by design); figures describe the situation as of ', ctx$data_as_of, '.</div>', sep = "")
+cat(sprintf("<p style='color:#52514e;font-size:13.5px;margin:0 0 4px'>Each point is a published forecast of %s annualized q/q growth (%% SAAR), plotted on the day it was made.</p>", ctx$q_now))
+cat(legend_line())
+cat(chart_evolution(ctx))
+```
+
+### Track record
+
+```{r}
+#| results: asis
+cat("<p style='color:#52514e;font-size:13.5px;margin:0 0 4px'>Last forecast published before BEA's advance estimate (dots) vs the advance estimate itself (◆). Scored against the <strong>first release</strong>.</p>")
+cat(legend_line(with_adv = TRUE))
+cat(chart_trackrecord(ctx))
+```
+
+### Table
+
+```{r}
+tbl <- rbindlist(lapply(rev(ctx$rows), function(r) data.table(
+  Quarter = r$q,
+  `Atlanta Fed GDPNow` = if (is.null(r$gdpnow)) NA_real_ else round(r$gdpnow, 2),
+  `NY Fed Staff Nowcast` = if (is.null(r$nyfed)) NA_real_ else round(r$nyfed, 2),
+  `Philly Fed SPF (mean)` = if (is.null(r$spf_philly)) NA_real_ else round(r$spf_philly, 2),
+  `BEA advance` = round(r$advance, 2),
+  `Advance published` = format(r$pub))))
+mae_row <- data.table(Quarter = sprintf("MAE (n=%d)", length(ctx$common)),
+                      t(round(ctx$mae, 2)), NA_real_, "")
+setnames(mae_row, names(tbl))
+knitr::kable(rbind(tbl, mae_row), align = "lrrrrl")
+```
+
+### Euro area (ECB SPF)
+
+```{r}
+#| results: asis
+cat(sprintf("<p style='color:#52514e;font-size:13.5px'>Latest round (%s): mean point forecasts of euro-area real GDP growth, <strong>%% year-on-year</strong> — a different measure from the US charts by design (units discipline per <code>docs/schema.md</code>); shown separately, never on the same axis.</p>", format(ctx$ecb_last_round)))
+ea <- data.table(`Target period` = ctx$ecb_latest$target_period,
+                 `Mean point forecast (% y-o-y)` = sprintf("%.2f", ctx$ecb_latest$value_native))
+cat(knitr::kable(ea, format = "html"))
+```
+
+### About
+
+```{r}
+#| results: asis
+cat(sprintf(paste0(
+  "<div style='max-width:72ch;font-size:14px'>",
+  "<p><strong>Data retrieved %s · dashboard rendered %s.</strong> Static snapshot; updates are ",
+  "event-driven, no schedule is promised, and staleness is announced rather than hidden.</p>",
+  "<p><strong>What “right” means here.</strong> GDP is revised for years, so every score names its ",
+  "target. This dashboard scores against the <strong>first release</strong> (BEA advance) — what ",
+  "GDPNow itself targets and what a reader expects. A fixed-horizon target (the value k quarters ",
+  "later) is the planned scientific default for the leaderboard; it needs outcome vintages not yet ",
+  "ingested (ALFRED). Producers also differ in what they implicitly target, so rankings on one ",
+  "target cannot be read as model quality alone.</p>",
+  "<p><strong>Sources.</strong> Atlanta Fed GDPNow spreadsheet, NY Fed Staff Nowcast download, ",
+  "Philadelphia Fed SPF mean-growth file, ECB SPF microdata. URLs, retrieval timestamps and ",
+  "SHA-256 checksums: <code>data/raw/manifest.json</code>. GDPNow full-archive MAE since 2011 over ",
+  "%d quarters: %.2f pp. Best-effort hobby project — no SLA.</p></div>"),
+  ctx$data_as_of, built_at, length(ctx$full), ctx$gdpnow_full_mae))
+```

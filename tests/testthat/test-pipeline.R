@@ -85,6 +85,25 @@ test_that("append_model_output is append-only with keyed dedupe", {
   expect_true(file.exists(sub("[.]parquet$", ".csv", path)))
 })
 
+test_that("render_dashboard degrades to the committed file when quarto is absent", {
+  old_path <- Sys.getenv("PATH")
+  on.exit(Sys.setenv(PATH = old_path))
+  Sys.setenv(PATH = "")
+  out <- file.path(root, "site/dashboard.html")
+  expect_message(got <- render_dashboard("ignored.qmd", deps = NULL, output = out),
+                 "quarto CLI not found")
+  expect_identical(got, out)
+})
+
+test_that("render_dashboard renders the real dashboard when quarto is available", {
+  skip_if(Sys.which("quarto") == "", "quarto CLI not installed")
+  qmd <- file.path(root, "site/dashboard.qmd")
+  out <- file.path(root, "site/dashboard.html")
+  expect_identical(render_dashboard(qmd, deps = NULL, output = out), out)
+  html <- readChar(out, file.size(out))
+  expect_match(html, "Evolution of \\d{4}Q[1-4] US GDP nowcasts")
+})
+
 test_that("run_build_script executes a script and vouches for its outputs", {
   d <- tempfile("rbs")
   dir.create(d)

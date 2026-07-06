@@ -102,6 +102,19 @@ run_build_script <- function(script, deps, outputs) {
   outputs
 }
 
+# render the Quarto dashboard; a soft dependency — skipped with a message when
+# the quarto CLI is absent so `tar_make()` stays runnable from R alone
+render_dashboard <- function(qmd, deps, output) {
+  invisible(deps)
+  if (Sys.which("quarto") == "") {
+    message("quarto CLI not found - skipping dashboard render (site/dashboard.html unchanged)")
+    return(output)
+  }
+  system2("quarto", c("render", qmd), stdout = TRUE, stderr = TRUE)
+  stopifnot(file.exists(output))
+  output
+}
+
 # append-only parquet archive: add rows whose key is not present yet
 append_model_output <- function(rows, path) {
   key <- function(d) paste(d$model_id, d$forecast_date, d$target_period,

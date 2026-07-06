@@ -48,5 +48,12 @@ list(
   tar_target(site_html,
              run_build_script(site_script, c(archive_files, site_lib, site_template),
                               "../site/index.html"),
+             format = "file"),
+
+  # --- X5 (Quarto fallback): static dashboard, only when the quarto CLI exists ---
+  tar_target(dashboard_qmd, "../site/dashboard.qmd", format = "file"),
+  tar_target(dashboard_html,
+             render_dashboard(dashboard_qmd, c(archive_files, site_lib),
+                              "../site/dashboard.html"),
              format = "file")
 )
