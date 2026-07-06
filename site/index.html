@@ -136,6 +136,18 @@ static snapshot, updates event-driven, no schedule promised.</span></div>
 </section>
 
 <section class="card">
+  <h2>Scores by horizon — target: first release</h2>
+  <p class="sub">Every score names its target (D1: US = BEA advance, EA = preliminary flash via ECB-RTD
+  first vintage) and its horizon bucket — nowcast and longer-term forecast performance are never pooled.
+  Errors in each source's native unit; regions are never compared to each other.</p>
+  <div class="tablewrap"><table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Unit</th><th>n</th><th>Quarters</th><th>MAE</th><th>Bias</th><th>RMSE</th></tr></thead><tbody><tr><td>EA</td><td>ECB SPF (mean)</td><td>2–4 quarters ahead</td><td>yoy pp</td><td>107</td><td>107</td><td>0.99</td><td>+0.51</td><td>1.99</td></tr><tr><td>EA</td><td>ECB SPF (mean)</td><td>5+ quarters ahead</td><td>yoy pp</td><td>106</td><td>103</td><td>1.59</td><td>+0.92</td><td>2.83</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Backcast (after quarter end)</td><td>SAAR pp</td><td>677</td><td>58</td><td>0.92</td><td>+0.24</td><td>1.40</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>1384</td><td>59</td><td>1.59</td><td>+0.33</td><td>2.93</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Backcast (after quarter end)</td><td>SAAR pp</td><td>130</td><td>34</td><td>2.31</td><td>-0.19</td><td>4.91</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>465</td><td>36</td><td>2.07</td><td>-0.17</td><td>4.77</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>1 quarter ahead</td><td>SAAR pp</td><td>171</td><td>36</td><td>2.79</td><td>-0.26</td><td>8.13</td></tr><tr><td>US</td><td>Philly Fed SPF (mean)</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>59</td><td>59</td><td>1.46</td><td>-0.05</td><td>2.51</td></tr></tbody></table></div>
+  <p class="note">Samples differ per source (see Quarters) and include the COVID quarters, which dominate
+  RMSE; cross-source comparisons are only fair on a common sample — the MAE row in the table view above is
+  the common-sample one. The fixed-horizon score (<code>fixed_h8</code>, D2) joins for the euro area next
+  and for the US once ALFRED vintages are ingested (owner action O3).</p>
+</section>
+
+<section class="card">
   <h2>Euro area — ECB Survey of Professional Forecasters</h2>
   <p class="sub">Latest round (2026-04-15): mean point forecasts of euro-area real GDP growth.</p>
   <div class="tablewrap"><table class="narrow"><thead><tr><th>Target period</th><th>Mean point forecast (% y-o-y)</th></tr></thead><tbody><tr><td>2026</td><td>0.96</td></tr><tr><td>2026Q4</td><td>0.96</td></tr><tr><td>2027</td><td>1.27</td></tr><tr><td>2027Q4</td><td>1.35</td></tr><tr><td>2028</td><td>1.33</td></tr><tr><td>2030</td><td>1.27</td></tr></tbody></table></div>

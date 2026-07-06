@@ -76,9 +76,27 @@ transform; and target rules are named, never implied:
 
 | Rule id | Definition | Status |
 |---|---|---|
-| `first_release` | earliest `release_label` per region (US: `advance`) | headline default (N1) |
-| `fixed_h<k>` | vintage published k quarters after `target_period` | scientific default; k = open sub-decision D2 |
+| `first_release` | earliest `release_label` per region — **D1 decided**: US = BEA `advance`; EA = Eurostat preliminary flash (proxied by the first ECB-RTD vintage, disclosed) | headline default (N1) |
+| `fixed_h8` | vintage published 8 quarters after `target_period` — **D2 decided**: k = 8 (2y, literature convention), k = 12 as sensitivity | scientific default; EA computable now, US awaits ALFRED (O3) |
 | `latest` | max `published_on` | computable, never a default (09 §2) |
+
+## Horizon buckets (scores are stratified, never pooled across horizons)
+
+Owner requirement (recorded with the D1/D2 sign-off, [09 §5](../research/09-target-measure-decision.md)):
+nowcast performance and longer-term forecast performance are different questions. Every score
+carries a `horizon` bucket derived from `quarters_ahead` = (target quarter start − forecast-date
+quarter start) / 3 months:
+
+| Bucket | `quarters_ahead` | Reading |
+|---|---|---|
+| `backcast` | < 0 | made after the target quarter ended, before first release |
+| `nowcast` | 0 | made inside the target quarter |
+| `1q_ahead` | 1 | one quarter out |
+| `2-4q_ahead` | 2–4 | up to a year out (SPF/ECB SPF territory) |
+| `5q+_ahead` | ≥ 5 | long-horizon (ECB SPF 2y rolling targets) |
+
+Aggregates (MAE, bias, RMSE) are reported per (source, region, target rule, bucket); cross-region
+aggregation stays forbidden (09 §4).
 
 Append-only discipline: ingestion may add rows, never mutate or delete; re-downloads that change history are a new `retrieved_at` generation, flagged loudly.
 ````
@@ -225,8 +243,8 @@ whole build now hangs off one dependency graph:
 # The network stage (ingest/download_raw.R) stays a separate, deliberate manual
 # step — the pipeline itself never touches the network. See pipeline/README.md.
 library(targets)
-tar_source("R/functions.R")
-tar_option_set(packages = c("dfms", "nanoparquet"))
+tar_source("R")  # functions.R + scoring.R
+tar_option_set(packages = c("dfms", "nanoparquet", "data.table"))
 
 list(
   # --- raw cache (files tracked, never fetched here) ---
@@ -268,14 +286,28 @@ list(
   tar_target(site_lib, "../site/R/site_lib.R", format = "file"),
   tar_target(site_template, "../site/template.html", format = "file"),
   tar_target(site_html,
-             run_build_script(site_script, c(archive_files, site_lib, site_template),
+             run_build_script(site_script, c(archive_files, site_lib, site_template, scores_files),
                               "../site/index.html"),
+             format = "file"),
+
+  # --- X2: scoring vs named target rules, stratified by horizon bucket ---
+  tar_target(fc_archive, {
+    invisible(archive_files)
+    as.data.table(nanoparquet::read_parquet("../data/archive/forecasts.parquet"))
+  }),
+  tar_target(oc_archive, {
+    invisible(archive_files)
+    as.data.table(nanoparquet::read_parquet("../data/archive/outcomes.parquet"))
+  }),
+  tar_target(scores, score_first_release(fc_archive, oc_archive)),
+  tar_target(scores_agg, score_summary(scores)),
+  tar_target(scores_files, write_scores(scores, scores_agg, "../data/archive"),
              format = "file"),
 
   # --- X5 (Quarto fallback): static dashboard, only when the quarto CLI exists ---
   tar_target(dashboard_qmd, "../site/dashboard.qmd", format = "file"),
   tar_target(dashboard_html,
-             render_dashboard(dashboard_qmd, c(archive_files, site_lib),
+             render_dashboard(dashboard_qmd, c(archive_files, site_lib, scores_files),
                               "../site/dashboard.html"),
              format = "file")
 )
@@ -312,7 +344,8 @@ Coverage (`Rscript tests/coverage.R`, `covr`):
 | `ingest/build_archive.R` | 96.7% |
 | `ingest/download_raw.R` | 92.1% |
 | `pipeline/R/functions.R` | 100.0% |
-| `site/R/site_lib.R` | 100.0% |
+| `pipeline/R/scoring.R` | 100.0% |
+| `site/R/site_lib.R` | 99.5% |
 | **Total** | **98.1%** |
 ````
 <sub>verbatim from [`tests/COVERAGE.md`](../tests/COVERAGE.md) — `sed -n '/^| File |/,/\*\*Total\*\*/p' tests/COVERAGE.md`</sub>
@@ -385,5 +418,8 @@ c1cf380 TODO: record owner-only actions (O1-O4: PR merge, Issue #2 close, ALFRED
 5ef850f X1: review mode — error chart (final nowcast vs first print) on page + dashboard
 3a98726 N4 residuals: EA outcome vintages (ECB RTD) + NY Fed legacy file ingested
 41fb2d1 X9: pre-mortem countermeasures — fail-loud CI, license registry, sunset + escrow skeletons
+85f5e59 Finalize goal round: coverage 98.1% (134 tests), walkthrough + screenshots refreshed
+ed91e48 Record D1+D2 decisions (owner sign-off) + horizon-bucket stratification requirement
+a20f247 X2: scoring module — vintage-correct scores vs first_release, horizon-stratified
 ````
 <sub>generated at build time — `git log --reverse --format='%h %s'`</sub>

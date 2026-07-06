@@ -157,6 +157,16 @@ setnames(mae_row, names(tbl))
 knitr::kable(rbind(tbl, mae_row), align = "lrrrrl")
 ```
 
+### Scores by horizon
+
+```{r}
+#| results: asis
+cat("<p style='color:#52514e;font-size:13.5px'>Target: first release (D1 — US advance, EA preliminary flash via ECB-RTD first vintage). Nowcast and longer-term performance are never pooled; regions are never compared. Samples include COVID quarters.</p>")
+sp <- file.path(root, "data/archive/scores_summary.parquet")
+ss <- if (file.exists(sp)) as.data.table(nanoparquet::read_parquet(sp)) else NULL
+cat(scores_table(ss))
+```
+
 ### Euro area (ECB SPF)
 
 ```{r}

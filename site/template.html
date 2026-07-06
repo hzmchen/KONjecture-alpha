@@ -124,6 +124,18 @@ $TILES
 </section>
 
 <section class="card">
+  <h2>Scores by horizon — target: first release</h2>
+  <p class="sub">Every score names its target (D1: US = BEA advance, EA = preliminary flash via ECB-RTD
+  first vintage) and its horizon bucket — nowcast and longer-term forecast performance are never pooled.
+  Errors in each source's native unit; regions are never compared to each other.</p>
+  <div class="tablewrap">$SCORES</div>
+  <p class="note">Samples differ per source (see Quarters) and include the COVID quarters, which dominate
+  RMSE; cross-source comparisons are only fair on a common sample — the MAE row in the table view above is
+  the common-sample one. The fixed-horizon score (<code>fixed_h8</code>, D2) joins for the euro area next
+  and for the US once ALFRED vintages are ingested (owner action O3).</p>
+</section>
+
+<section class="card">
   <h2>Euro area — ECB Survey of Professional Forecasters</h2>
   <p class="sub">Latest round ($ECB_ROUND): mean point forecasts of euro-area real GDP growth.</p>
   <div class="tablewrap">$ECBTABLE</div>

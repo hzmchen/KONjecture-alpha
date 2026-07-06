@@ -46,7 +46,7 @@ final_before <- function(us, src, tp, pub) {
   if (nrow(d)) d[.N] else NULL
 }
 
-build_context <- function(fc, oc, manifest, sources = SITE_SOURCES) {
+build_context <- function(fc, oc, manifest, sources = SITE_SOURCES, scores_summary = NULL) {
   us <- fc[region == "US"]
   # the page's review/track-record logic is US-vs-advance only; the outcomes
   # table also carries EA vintages (region "EA"), which must stay out of it
@@ -88,6 +88,7 @@ build_context <- function(fc, oc, manifest, sources = SITE_SOURCES) {
     full = full, gdpnow_full_mae = mean(full),
     ecb_last_round = ecb_last_round,
     ecb_latest = ecb[forecast_date == ecb_last_round][order(target_period)],
+    scores_summary = scores_summary,
     data_as_of = max(vapply(manifest, function(m) substr(m$retrieved_at, 1, 10), ""))
   )
 }
@@ -253,6 +254,31 @@ ecb_table <- function(ctx) {
           paste(r, collapse = ""))
 }
 
+HORIZON_LABELS <- c(backcast = "Backcast (after quarter end)", nowcast = "Nowcast (inside quarter)",
+                    `1q_ahead` = "1 quarter ahead", `2-4q_ahead` = "2–4 quarters ahead",
+                    `5q+_ahead` = "5+ quarters ahead")
+SCORE_SOURCE_LABELS <- c(gdpnow = "Atlanta Fed GDPNow", nyfed = "NY Fed Staff Nowcast",
+                         spf_philly = "Philly Fed SPF (mean)", spf_ecb = "ECB SPF (mean)")
+
+scores_table <- function(summary_dt) {
+  if (is.null(summary_dt) || !nrow(summary_dt)) return('<p class="note">Scores pending.</p>')
+  d <- as.data.table(summary_dt)
+  d[, hord := match(as.character(horizon), names(HORIZON_LABELS))]
+  d <- d[order(region, source, hord)]
+  rows <- vapply(seq_len(nrow(d)), function(i) {
+    r <- d[i]
+    lab <- SCORE_SOURCE_LABELS[r$source]
+    if (is.na(lab)) lab <- r$source
+    unit <- if (r$variable == "rgdp_growth_yoy") "yoy pp" else "SAAR pp"
+    sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%s</td><td>%+.2f</td><td>%s</td></tr>",
+            r$region, esc(lab), HORIZON_LABELS[as.character(r$horizon)], unit,
+            r$n, r$n_quarters, f2(r$mae), r$bias, f2(r$rmse))
+  }, "")
+  paste0('<table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Unit</th>',
+         '<th>n</th><th>Quarters</th><th>MAE</th><th>Bias</th><th>RMSE</th></tr></thead><tbody>',
+         paste(rows, collapse = ""), "</tbody></table>")
+}
+
 legend_html <- function(ctx) {
   paste0(vapply(ctx$sources, function(m)
     sprintf('<span><span class="chip %s"></span>%s</span>', m$cls, esc(m$label)), ""), collapse = "")
@@ -266,6 +292,7 @@ render_page <- function(ctx, template, built_at) {
              CHART1 = chart_evolution(ctx), CHART2 = chart_trackrecord(ctx),
              CHART3 = chart_errors(ctx),
              TABLE = table_view(ctx), ECBTABLE = ecb_table(ctx),
+             SCORES = scores_table(ctx$scores_summary),
              ECB_ROUND = format(ctx$ecb_last_round), GN_MAE = f2(ctx$gdpnow_full_mae),
              GN_N = as.character(length(ctx$full)))
   html <- template
@@ -279,8 +306,11 @@ site_main <- function(root, built_at = format(Sys.Date())) {
   oc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/outcomes.parquet")))
   manifest <- jsonlite::read_json(file.path(root, "data/raw/manifest.json"))
   template <- paste0(paste(readLines(file.path(root, "site", "template.html"), warn = FALSE), collapse = "\n"), "\n")
+  scores_path <- file.path(root, "data/archive/scores_summary.parquet")
+  scores_summary <- if (file.exists(scores_path))
+    as.data.table(nanoparquet::read_parquet(scores_path)) else NULL
 
-  ctx <- build_context(fc, oc, manifest)
+  ctx <- build_context(fc, oc, manifest, scores_summary = scores_summary)
   html <- render_page(ctx, template, built_at)
 
   out <- file.path(root, "site", "index.html")

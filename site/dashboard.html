@@ -3505,7 +3505,8 @@ pending
 <div class="card tabset bslib-card html-fill-container" data-bslib-card-init data-require-bs-caller="card()">
 <div class="card-header dashboard-card-no-title bslib-navs-card-title">
 
-<ul class="nav nav-tabs card-header-tabs" role="tablist" data-tabsetid="card-tabset-5"><li class="nav-item" role="presentation"><a href="#card-tabset-5-1" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Now: 2026Q2 evolution" aria-selected="true" class="nav-link active">Now: 2026Q2 evolution</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-2" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Track record" aria-selected="false" class="nav-link">Track record</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-3" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Review: errors" aria-selected="false" class="nav-link">Review: errors</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-4" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Table" aria-selected="false" class="nav-link">Table</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-5" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Euro area (ECB SPF)" aria-selected="false" class="nav-link">Euro area (ECB SPF)</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-6" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="About" aria-selected="false" class="nav-link">About</a></li></ul></div>
+<ul class="nav nav-tabs card-header-tabs" role="tablist" data-tabsetid="card-tabset-5"><li class="nav-item" role="presentation"><a href="#card-tabset-5-1" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Now: 2026Q2 evolution" aria-selected="true" class="nav-link active">Now: 2026Q2 evolution</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-2" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Track record" aria-selected="false" class="nav-link">Track record</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-3" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Review: errors" aria-selected="false" class="nav-link">Review: errors</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-4" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Table" aria-selected="false" class="nav-link">Table</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-5" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Scores by horizon" aria-selected="false" class="nav-link">Scores by horizon</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-6" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="Euro area (ECB SPF)" aria-selected="false" class="nav-link">Euro area (ECB SPF)</a></li><li class="nav-item" role="presentation"><a href="#card-tabset-5-7" role="tab" data-toggle="tab" data-bs-toggle="tab" data-value="About" aria-selected="false" class="nav-link">About</a></li></ul></div>
+
 
 
 
@@ -3739,7 +3740,284 @@ Error = final nowcast − BEA advance estimate, in percentage points. Right of t
 </div>
 <script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
 </div>
-</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-5-5"><div class="card-body html-fill-item html-fill-container" data-title="Euro area (ECB SPF)">
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-5-5"><div class="card-body html-fill-item html-fill-container" data-title="Scores by horizon">
+<div class="bslib-grid html-fill-item html-fill-container" style="display: grid; grid-template-rows: minmax(3em, max-content); grid-auto-columns: minmax(0, 1fr);">
+<div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init data-require-bs-caller="card()">
+<div class="card-body html-fill-item html-fill-container">
+<p style="color:#52514e;font-size:13.5px">
+Target: first release (D1 — US advance, EA preliminary flash via ECB-RTD first vintage). Nowcast and longer-term performance are never pooled; regions are never compared. Samples include COVID quarters.
+</p>
+<table>
+<thead>
+<tr>
+<th>
+Region
+</th>
+<th>
+Source
+</th>
+<th>
+Horizon
+</th>
+<th>
+Unit
+</th>
+<th>
+n
+</th>
+<th>
+Quarters
+</th>
+<th>
+MAE
+</th>
+<th>
+Bias
+</th>
+<th>
+RMSE
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+EA
+</td>
+<td>
+ECB SPF (mean)
+</td>
+<td>
+2–4 quarters ahead
+</td>
+<td>
+yoy pp
+</td>
+<td>
+107
+</td>
+<td>
+107
+</td>
+<td>
+0.99
+</td>
+<td>
++0.51
+</td>
+<td>
+1.99
+</td>
+</tr>
+<tr>
+<td>
+EA
+</td>
+<td>
+ECB SPF (mean)
+</td>
+<td>
+5+ quarters ahead
+</td>
+<td>
+yoy pp
+</td>
+<td>
+106
+</td>
+<td>
+103
+</td>
+<td>
+1.59
+</td>
+<td>
++0.92
+</td>
+<td>
+2.83
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+Atlanta Fed GDPNow
+</td>
+<td>
+Backcast (after quarter end)
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+677
+</td>
+<td>
+58
+</td>
+<td>
+0.92
+</td>
+<td>
++0.24
+</td>
+<td>
+1.40
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+Atlanta Fed GDPNow
+</td>
+<td>
+Nowcast (inside quarter)
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+1384
+</td>
+<td>
+59
+</td>
+<td>
+1.59
+</td>
+<td>
++0.33
+</td>
+<td>
+2.93
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+NY Fed Staff Nowcast
+</td>
+<td>
+Backcast (after quarter end)
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+130
+</td>
+<td>
+34
+</td>
+<td>
+2.31
+</td>
+<td>
+-0.19
+</td>
+<td>
+4.91
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+NY Fed Staff Nowcast
+</td>
+<td>
+Nowcast (inside quarter)
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+465
+</td>
+<td>
+36
+</td>
+<td>
+2.07
+</td>
+<td>
+-0.17
+</td>
+<td>
+4.77
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+NY Fed Staff Nowcast
+</td>
+<td>
+1 quarter ahead
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+171
+</td>
+<td>
+36
+</td>
+<td>
+2.79
+</td>
+<td>
+-0.26
+</td>
+<td>
+8.13
+</td>
+</tr>
+<tr>
+<td>
+US
+</td>
+<td>
+Philly Fed SPF (mean)
+</td>
+<td>
+Nowcast (inside quarter)
+</td>
+<td>
+SAAR pp
+</td>
+<td>
+59
+</td>
+<td>
+59
+</td>
+<td>
+1.46
+</td>
+<td>
+-0.05
+</td>
+<td>
+2.51
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
+</div>
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-5-6"><div class="card-body html-fill-item html-fill-container" data-title="Euro area (ECB SPF)">
 <div class="bslib-grid html-fill-item html-fill-container" style="display: grid; grid-template-rows: minmax(3em, max-content); grid-auto-columns: minmax(0, 1fr);">
 <div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">
@@ -3811,7 +4089,7 @@ Mean point forecast (% y-o-y)
 </div>
 <script data-bslib-card-init>bslib.Card.initializeAllCards();</script></div>
 </div>
-</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-5-6"><div class="card-body html-fill-item html-fill-container" data-title="About">
+</div></div><div class="tab-pane html-fill-item html-fill-container" role="tabpanel" id="card-tabset-5-7"><div class="card-body html-fill-item html-fill-container" data-title="About">
 <div class="bslib-grid html-fill-item html-fill-container" style="display: grid; grid-template-rows: minmax(3em, max-content); grid-auto-columns: minmax(0, 1fr);">
 <div class="card html-fill-item html-fill-container bslib-card" data-fill="false" data-bslib-card-init data-require-bs-caller="card()">
 <div class="card-body html-fill-item html-fill-container">

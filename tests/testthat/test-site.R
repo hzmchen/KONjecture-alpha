@@ -40,7 +40,8 @@ with_ctx <- function() {
   fc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/forecasts.parquet")))
   oc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/outcomes.parquet")))
   manifest <- jsonlite::read_json(file.path(root, "data/raw/manifest.json"))
-  build_context(fc, oc, manifest)
+  ss <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/scores_summary.parquet")))
+  build_context(fc, oc, manifest, scores_summary = ss)
 }
 
 test_that("build_context derives the page state from the archive", {
@@ -100,10 +101,22 @@ test_that("a source with no data degrades gracefully instead of crashing the bui
   expect_type(chart_trackrecord(ctx2), "character")
 })
 
+test_that("scores_table renders the horizon-stratified summary and a pending fallback", {
+  expect_identical(scores_table(NULL), '<p class="note">Scores pending.</p>')
+  ss <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/scores_summary.parquet")))
+  html <- scores_table(ss)
+  expect_match(html, "Backcast \\(after quarter end\\)")
+  expect_match(html, "<td>EA</td><td>ECB SPF \\(mean\\)</td>")
+  expect_match(html, "yoy pp")
+  # one row per summary row
+  expect_identical(lengths(regmatches(html, gregexpr("<tr><td>", html))), nrow(ss))
+})
+
 test_that("site_main writes the page for an arbitrary root", {
   tmp <- tempfile("siteroot")
   for (d in c("data/archive", "data/raw", "site")) dir.create(file.path(tmp, d), recursive = TRUE)
   for (f in c("data/archive/forecasts.parquet", "data/archive/outcomes.parquet",
+              "data/archive/scores_summary.parquet",
               "data/raw/manifest.json", "site/template.html"))
     file.copy(file.path(root, f), file.path(tmp, f))
   out <- site_main(tmp, built_at = "2026-07-06")
