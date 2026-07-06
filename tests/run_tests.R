@@ -15,5 +15,6 @@ source(file.path(TEST_ROOT, "ingest", "download_raw.R"))
 source(file.path(TEST_ROOT, "ingest", "build_archive.R"))
 source(file.path(TEST_ROOT, "site", "R", "site_lib.R"))
 source(file.path(TEST_ROOT, "pipeline", "R", "functions.R"))
+source(file.path(TEST_ROOT, "pipeline", "R", "scoring.R"))
 
 res <- test_dir(file.path(TEST_ROOT, "tests", "testthat"), stop_on_failure = TRUE)

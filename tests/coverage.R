@@ -14,7 +14,7 @@ suppressMessages(library(data.table))
 library(testthat)
 
 sources <- c("ingest/download_raw.R", "ingest/build_archive.R",
-             "site/R/site_lib.R", "pipeline/R/functions.R")
+             "site/R/site_lib.R", "pipeline/R/functions.R", "pipeline/R/scoring.R")
 tests <- list.files("tests/testthat", pattern = "^test-.*[.]R$", full.names = TRUE)
 
 cov <- covr::file_coverage(sources, tests)

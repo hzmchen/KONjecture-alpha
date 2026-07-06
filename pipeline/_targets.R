@@ -3,8 +3,8 @@
 # The network stage (ingest/download_raw.R) stays a separate, deliberate manual
 # step — the pipeline itself never touches the network. See pipeline/README.md.
 library(targets)
-tar_source("R/functions.R")
-tar_option_set(packages = c("dfms", "nanoparquet"))
+tar_source("R")  # functions.R + scoring.R
+tar_option_set(packages = c("dfms", "nanoparquet", "data.table"))
 
 list(
   # --- raw cache (files tracked, never fetched here) ---
@@ -48,6 +48,20 @@ list(
   tar_target(site_html,
              run_build_script(site_script, c(archive_files, site_lib, site_template),
                               "../site/index.html"),
+             format = "file"),
+
+  # --- X2: scoring vs named target rules, stratified by horizon bucket ---
+  tar_target(fc_archive, {
+    invisible(archive_files)
+    as.data.table(nanoparquet::read_parquet("../data/archive/forecasts.parquet"))
+  }),
+  tar_target(oc_archive, {
+    invisible(archive_files)
+    as.data.table(nanoparquet::read_parquet("../data/archive/outcomes.parquet"))
+  }),
+  tar_target(scores, score_first_release(fc_archive, oc_archive)),
+  tar_target(scores_agg, score_summary(scores)),
+  tar_target(scores_files, write_scores(scores, scores_agg, "../data/archive"),
              format = "file"),
 
   # --- X5 (Quarto fallback): static dashboard, only when the quarto CLI exists ---

@@ -152,18 +152,9 @@ nyfed_legacy <- function() {
 
 # --- ECB RTD: euro-area outcome vintages (GDP level history -> q/q growth) ---
 
-ea_outcomes <- function() {
-  f <- "ecb_rtd_gdp_ea.csv"
-  raw <- fread(file.path(RAW, f), select = c("TIME_PERIOD", "OBS_VALUE", "VALID_FROM"))
-  lv <- raw[, .(
-    target_period = sub("-", "", TIME_PERIOD),
-    qstart = as.Date(paste0(substr(TIME_PERIOD, 1, 4), "-",
-                            (as.integer(substr(TIME_PERIOD, 7, 7)) - 1L) * 3L + 1L, "-01")),
-    level = as.numeric(OBS_VALUE),
-    vfrom = as.Date(substr(VALID_FROM, 1, 10))
-  )][order(qstart, vfrom)]
-  # same-vintage previous-quarter level via rolling as-of join
-  prev <- lv[, .(qstart = seq(qstart, by = "3 months", length.out = 2)[2],
+rtd_growth <- function(lv, lag_q, variable, unit, f) {
+  # growth of each quarter vs the SAME vintage's level lag_q quarters earlier
+  prev <- lv[, .(qstart = seq(qstart, by = "3 months", length.out = lag_q + 1)[lag_q + 1],
                  vprev = vfrom, level_prev = level), by = seq_len(nrow(lv))][, -1]
   setkey(prev, qstart, vprev)
   cur <- lv[, .(target_period, qstart, level, vfrom, vjoin = vfrom)]
@@ -174,14 +165,28 @@ ea_outcomes <- function() {
   m[, release_label := ifelse(vfrom == min(vfrom), "first_release",
                               paste0("vintage_", format(vfrom, "%Y%m%d"))), by = target_period]
   data.table(
-    region = "EA", variable = "rgdp_growth",
+    region = "EA", variable = variable,
     target_period = m$target_period,
     release_label = m$release_label,
     published_on = m$vfrom,
-    value_native = m$growth, unit_native = "qq_pct",
+    value_native = m$growth, unit_native = unit,
     source = "ecb_rtd(G_GDPM_TO_C)",
     retrieved_at = retrieved(f), source_file = f
   )
+}
+
+ea_outcomes <- function() {
+  f <- "ecb_rtd_gdp_ea.csv"
+  raw <- fread(file.path(RAW, f), select = c("TIME_PERIOD", "OBS_VALUE", "VALID_FROM"))
+  lv <- raw[, .(
+    target_period = sub("-", "", TIME_PERIOD),
+    qstart = as.Date(paste0(substr(TIME_PERIOD, 1, 4), "-",
+                            (as.integer(substr(TIME_PERIOD, 7, 7)) - 1L) * 3L + 1L, "-01")),
+    level = as.numeric(OBS_VALUE),
+    vfrom = as.Date(substr(VALID_FROM, 1, 10))
+  )][order(qstart, vfrom)]
+  rbind(rtd_growth(lv, 1L, "rgdp_growth", "qq_pct", f),        # q/q, canonical
+        rtd_growth(lv, 4L, "rgdp_growth_yoy", "yoy_pct", f))   # yoy, for ECB SPF scoring
 }
 
 # --- Philadelphia Fed SPF: mean current-quarter growth (drgdp2) per survey round ---
@@ -273,7 +278,8 @@ archive_main <- function(out_dir = ARCHIVE_OUT) {
   outcomes <- gd$oc
   outcomes[, value_qq := round(saar_to_qq(value_native), 4)]
   ea <- ea_outcomes()
-  ea[, value_qq := value_native]  # already canonical q/q non-annualized
+  # q/q rows are already canonical; yoy rows are not identifiable to q/q
+  ea[, value_qq := ifelse(unit_native == "qq_pct", value_native, NA_real_)]
   outcomes <- rbind(outcomes, ea)
 
   setcolorder(forecasts, c("source", "region", "variable", "target_period", "forecast_date",

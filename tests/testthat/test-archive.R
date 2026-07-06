@@ -72,19 +72,21 @@ test_that("nyfed_legacy splits real-time from retrospective targets", {
   expect_identical(max(leg[source == "nyfed", forecast_date]), as.Date("2021-08-27"))
 })
 
-test_that("ea_outcomes derives vintage-correct q/q growth from RTD levels", {
+test_that("ea_outcomes derives vintage-correct q/q and yoy growth from RTD levels", {
   ea <- ea_outcomes()
-  expect_identical(unique(ea$unit_native), "qq_pct")
+  expect_setequal(unique(ea$unit_native), c("qq_pct", "yoy_pct"))
+  expect_setequal(unique(ea$variable), c("rgdp_growth", "rgdp_growth_yoy"))
   fr <- ea[release_label == "first_release"]
-  expect_identical(nrow(fr[duplicated(target_period)]), 0L)
-  # COVID collapse, first print (hand-checked vs euro-area history)
-  expect_equal(fr[target_period == "2020Q2", value_native], -11.7694)
+  expect_identical(nrow(fr[duplicated(fr[, .(variable, target_period)])]), 0L)
+  # COVID collapse, first prints (hand-checked vs euro-area history)
+  expect_equal(fr[target_period == "2020Q2" & variable == "rgdp_growth", value_native], -11.7694)
+  expect_equal(fr[target_period == "2020Q2" & variable == "rgdp_growth_yoy", value_native], -14.7386)
   # every non-first vintage label carries its publication date
   expect_true(all(grepl("^vintage_\\d{8}$", ea[release_label != "first_release", release_label])))
-  # growth at each vintage uses the SAME vintage's previous-quarter level:
-  # published_on of first_release must be the quarter's earliest vintage
+  # growth at each vintage uses the SAME vintage's previous-period level:
+  # published_on of first_release must be the earliest vintage per (variable, quarter)
   expect_true(all(ea[, min(published_on) == published_on[release_label == "first_release"],
-                     by = target_period]$V1))
+                     by = .(variable, target_period)]$V1))
 })
 
 test_that("archive_main reproduces the committed archive exactly", {
