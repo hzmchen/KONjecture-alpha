@@ -46,4 +46,4 @@ Consequently the binary in the issue title ("first vs final") is a false dilemma
 - **X5** gains D4 as an input alongside the existing 08-F3 staleness requirement.
 - **L1** gains §4 as an explicit input on fairness rules.
 
-**Status:** recommendation stands ready for owner sign-off on Issue #2; D1–D2 are the only items that must be fixed before X2, and both are cheap to decide once the first two institutional tracks (GDPNow, NY Fed — N4 step 1) are ingested and their declared targets are visible in the data.
+**Status (updated 2026-07-06): option 4 confirmed by the project owner — N1 is decided.** The recommendations in §2 are now the project's defaults. Residual work: D1–D2 must be fixed before X2 (both are cheap to decide once the first two institutional tracks — GDPNow, NY Fed, N4 step 1 — are ingested and their declared targets are visible in the data); D3 applies from the first N4 ingest; D4 is an X5 design input. Issue #2 can be closed referencing this doc.
