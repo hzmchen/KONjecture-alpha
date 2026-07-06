@@ -21,3 +21,15 @@ Extensive market research (2026-06-10) lives in [`research/`](research/):
 | [components/](research/components/README.md) | Component catalog per architecture layer: capabilities, status, licensing, availability (Issue #3); incl. webR/WASM audit |
 
 Prioritized next steps and the icebox live in [TODO.md](TODO.md). Project premises (one-person Liebhaberei, AI-assisted build) and rubrics: [research/00](research/00-methodology-and-rubrics.md).
+
+## Implementation (started 2026-07-06)
+
+| Dir | What | Status |
+|---|---|---|
+| [docs/schema.md](docs/schema.md) | Archive schema v0.1: outcome-as-of-vintage, target rules, hubverse mapping | v0.1 |
+| [ingest/](ingest/README.md) | Raw downloads (manifest + SHA256) → normalized `data/archive/` parquet/csv | N4 seeded: 4 sources, 3,285 forecasts, 59 outcomes |
+| [data/](data/) | `raw/` upstream cache · `archive/` forecasts, outcomes, model output | append-only |
+| [site/](site/build_site.py) | Static Wizard-of-Oz comparison page (self-contained HTML+SVG) | N3 built |
+| [pipeline/](pipeline/README.md) | `targets` + `dfms` nowcast spike: AR(2) benchmark + DFM bridge → hubverse-style quantiles | N2 spike |
+
+Everything runs offline from the committed raw cache; network is touched only by deliberate one-off `ingest/download_raw.py` runs. Best-effort hobby project: **no SLA, no update schedule** — artifacts announce their own staleness.

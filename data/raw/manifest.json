@@ -30,5 +30,21 @@
     "sha256": "2004a3718331c46efd78c861f0153a8b05a575a7f23d512d9d5e5bd892b7e72f",
     "bytes": 1595542,
     "notes": "ECB SPF individual forecasts, all rounds since 1999Q1 (one CSV per round)."
+  },
+  "fred_monthly_indicators.csv": {
+    "source_id": "fred_monthly",
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO,PAYEMS,RSAFS,UNRATE,DGORDER",
+    "retrieved_at": "2026-07-06T11:33:46+00:00",
+    "sha256": "a12b4bfc7a623534e08f5c1bbf5d0aee9896efc7b46878a528839b49c2877509",
+    "bytes": 43095,
+    "notes": "N2 spike inputs: monthly US indicators (industrial production, payrolls, retail sales, unemployment, durable goods orders), latest vintage via keyless fredgraph endpoint. Vintage-correct pulls need ALFRED (deferred, API key)."
+  },
+  "fred_gdp_growth.csv": {
+    "source_id": "fred_gdp",
+    "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=A191RL1Q225SBEA",
+    "retrieved_at": "2026-07-06T11:33:46+00:00",
+    "sha256": "29caa67d2e09812c327766e8f3be9cec14315150a93ef6e7f5a88b5633cef437",
+    "bytes": 4831,
+    "notes": "N2 spike target: US real GDP growth (SAAR %, quarterly, latest vintage)."
   }
 }

@@ -85,6 +85,44 @@ def gdpnow():
     return fc, oc
 
 
+def gdpnow_current():
+    """In-flight quarter from CurrentQtrEvolution (not yet in the archive tabs):
+    [Date, Major Releases, GDP*] column triplets; quarter parsed from the
+    'Initial GDPNow YY:Qq forecast' label."""
+    f = "gdpnow_tracking.xlsx"
+    df = pd.read_excel(RAW / f, sheet_name="CurrentQtrEvolution", header=None, **E)
+    m = None
+    for cell in df.astype(str).to_numpy().ravel():
+        mm = re.search(r"Initial GDPNow (\d\d):Q(\d) forecast", cell)
+        if mm:
+            m = mm
+            break
+    if not m:
+        return pd.DataFrame()
+    tp = f"20{m.group(1)}Q{m.group(2)}"
+    rows = []
+    for c in range(0, df.shape[1] - 2, 3):
+        dates = pd.to_datetime(df[c], errors="coerce")
+        vals = pd.to_numeric(df[c + 2], errors="coerce")
+        ok = dates.notna() & vals.notna()
+        rows.append(pd.DataFrame({"forecast_date": dates[ok].dt.date, "value": vals[ok]}))
+    cur = pd.concat(rows, ignore_index=True).drop_duplicates(subset=["forecast_date"])
+    return pd.DataFrame({
+        "source": "gdpnow",
+        "region": "US",
+        "variable": "rgdp_growth",
+        "target_period": tp,
+        "forecast_date": cur["forecast_date"],
+        "output_type": "point",
+        "output_id": None,
+        "value_native": cur["value"].astype(float),
+        "unit_native": "saar_pct",
+        "declared_target": "advance",
+        "retrieved_at": retrieved(f),
+        "source_file": f"{f}:CurrentQtrEvolution",
+    })
+
+
 # --- NY Fed Staff Nowcast: Forecasts By Quarter grid (2023- relaunch file) ---
 
 def nyfed():
@@ -203,6 +241,10 @@ def spf_ecb():
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     gd_fc, gd_oc = gdpnow()
+    gd_cur = gdpnow_current()
+    if len(gd_cur):
+        gd_fc = pd.concat([gd_fc, gd_cur], ignore_index=True).drop_duplicates(
+            subset=["target_period", "forecast_date"], keep="first")
     forecasts = pd.concat([gd_fc, nyfed(), spf_philly(), spf_ecb()], ignore_index=True)
     forecasts["value_qq"] = forecasts["value_native"].where(
         forecasts["unit_native"] == "saar_pct").pipe(saar_to_qq).round(4)

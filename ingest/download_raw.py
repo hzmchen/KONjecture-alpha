@@ -36,6 +36,16 @@ SOURCES = {
         "file": "spf_philly_meangrowth.xlsx",
         "notes": "Philadelphia Fed SPF mean growth-rate forecasts (RGDP tab = SAAR q/q %, quarterly rounds since 1968).",
     },
+    "fred_monthly": {
+        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=INDPRO,PAYEMS,RSAFS,UNRATE,DGORDER",
+        "file": "fred_monthly_indicators.csv",
+        "notes": "N2 spike inputs: monthly US indicators (industrial production, payrolls, retail sales, unemployment, durable goods orders), latest vintage via keyless fredgraph endpoint. Vintage-correct pulls need ALFRED (deferred, API key).",
+    },
+    "fred_gdp": {
+        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=A191RL1Q225SBEA",
+        "file": "fred_gdp_growth.csv",
+        "notes": "N2 spike target: US real GDP growth (SAAR %, quarterly, latest vintage).",
+    },
     "spf_ecb": {
         "url": "https://www.ecb.europa.eu/stats/prices/indic/forecast/shared/files/SPF_individual_forecasts.zip",
         "file": "spf_ecb_individual.zip",
