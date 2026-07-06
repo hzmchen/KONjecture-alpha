@@ -309,11 +309,11 @@ Coverage (`Rscript tests/coverage.R`, `covr`):
 ````text
 | File | Line coverage |
 |---|---|
-| `ingest/build_archive.R` | 95.9% |
+| `ingest/build_archive.R` | 96.7% |
 | `ingest/download_raw.R` | 92.1% |
 | `pipeline/R/functions.R` | 100.0% |
 | `site/R/site_lib.R` | 100.0% |
-| **Total** | **97.8%** |
+| **Total** | **98.1%** |
 ````
 <sub>verbatim from [`tests/COVERAGE.md`](../tests/COVERAGE.md) — `sed -n '/^| File |/,/\*\*Total\*\*/p' tests/COVERAGE.md`</sub>
 
@@ -380,5 +380,10 @@ ddc38b1 Record owner confirmation of Issue #2 option 4 — N1 decided
 db7cb8d Pure R complete: unify archive+site into targets graph, drop Python, add renv lockfile
 8ab1653 Tests + coverage: 117 offline testthat tests, 97.8% line coverage
 259a81c X5 (Quarto fallback): static dashboard from the tested chart library
+76dda9e Add walkthrough/: generated linear project history with verbatim code + screenshots
+c1cf380 TODO: record owner-only actions (O1-O4: PR merge, Issue #2 close, ALFRED key, D1/D2 sign-off)
+5ef850f X1: review mode — error chart (final nowcast vs first print) on page + dashboard
+3a98726 N4 residuals: EA outcome vintages (ECB RTD) + NY Fed legacy file ingested
+41fb2d1 X9: pre-mortem countermeasures — fail-loud CI, license registry, sunset + escrow skeletons
 ````
 <sub>generated at build time — `git log --reverse --format='%h %s'`</sub>

@@ -4,11 +4,11 @@ Computed 2026-07-06 via `Rscript tests/coverage.R` (`covr::file_coverage` over 4
 
 | File | Line coverage |
 |---|---|
-| `ingest/build_archive.R` | 95.9% |
+| `ingest/build_archive.R` | 96.7% |
 | `ingest/download_raw.R` | 92.1% |
 | `pipeline/R/functions.R` | 100.0% |
 | `site/R/site_lib.R` | 100.0% |
-| **Total** | **97.8%** |
+| **Total** | **98.1%** |
 
 Excluded from instrumentation (execution glue, exercised end-to-end by `targets::tar_make()` and the golden-page regression test): `site/build_site.R`, `pipeline/_targets.R`, `tests/`.
 
