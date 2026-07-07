@@ -100,7 +100,7 @@ For each identified market gap:
 
 Range 1–75. Used to rank which parts of the vision to build first; the ranking logic is shown in [03-synthesis-market-gap-and-fit.md](03-synthesis-market-gap-and-fit.md).
 
-**Methodological caution.** R2/R4/R6 multiply and weight *ordinal* scales scored by a single rater. Treat outputs as **screening ranks, not magnitudes**; only large differences are meaningful, and rankings should survive a ±1 perturbation of any single score before being acted on (sensitivity check tracked in [TODO](../TODO.md)).
+**Methodological caution.** R2/R4/R6 multiply and weight *ordinal* scales scored by a single rater. Treat outputs as **screening ranks, not magnitudes**; only large differences are meaningful, and rankings should survive a ±1 perturbation of any single score before being acted on (sensitivity check done 2026-07-07 → [10-rubric-sensitivity.md](10-rubric-sensitivity.md): action buckets are perturbation-stable; within-bucket orders G2/G3 and G4/G5 are not, and must never be relied on).
 
 **v2 amendments (P-A, P-B).**
 1. **R7 gates R6**: a high-opportunity item that fails R7 (below) goes to the icebox regardless of score.
