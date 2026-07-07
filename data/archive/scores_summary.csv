@@ -1,6 +1,10 @@
 "source","region","variable","target_rule","horizon","n","n_quarters","mae","bias","rmse"
 "spf_ecb","EA","rgdp_growth_yoy","first_release","2-4q_ahead",107,107,0.9873,0.5085,1.9949
+"spf_ecb","EA","rgdp_growth_yoy","fixed_h8","2-4q_ahead",99,99,1.1063,0.4275,2.0991
+"spf_ecb","EA","rgdp_growth_yoy","fixed_h12","2-4q_ahead",95,95,1.1799,0.3593,2.1428
 "spf_ecb","EA","rgdp_growth_yoy","first_release","5q+_ahead",106,103,1.5936,0.9165,2.8272
+"spf_ecb","EA","rgdp_growth_yoy","fixed_h8","5q+_ahead",98,95,1.6906,0.8312,2.9222
+"spf_ecb","EA","rgdp_growth_yoy","fixed_h12","5q+_ahead",94,91,1.7056,0.7056,2.994
 "gdpnow","US","rgdp_growth","first_release","backcast",677,58,0.9172,0.2396,1.4027
 "gdpnow","US","rgdp_growth","first_release","nowcast",1384,59,1.5914,0.3304,2.9339
 "nyfed","US","rgdp_growth","first_release","backcast",130,34,2.3142,-0.1934,4.9072

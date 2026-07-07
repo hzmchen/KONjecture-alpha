@@ -59,7 +59,9 @@ list(
     invisible(archive_files)
     as.data.table(nanoparquet::read_parquet("../data/archive/outcomes.parquet"))
   }),
-  tar_target(scores, score_first_release(fc_archive, oc_archive)),
+  tar_target(scores, rbind(score_first_release(fc_archive, oc_archive),
+                           score_fixed_h(fc_archive, oc_archive, k = 8),
+                           score_fixed_h(fc_archive, oc_archive, k = 12))),
   tar_target(scores_agg, score_summary(scores)),
   tar_target(scores_files, write_scores(scores, scores_agg, "../data/archive"),
              format = "file"),

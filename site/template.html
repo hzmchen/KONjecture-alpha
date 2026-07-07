@@ -131,8 +131,11 @@ $TILES
   <div class="tablewrap">$SCORES</div>
   <p class="note">Samples differ per source (see Quarters) and include the COVID quarters, which dominate
   RMSE; cross-source comparisons are only fair on a common sample — the MAE row in the table view above is
-  the common-sample one. The fixed-horizon score (<code>fixed_h8</code>, D2) joins for the euro area next
-  and for the US once ALFRED vintages are ingested (owner action O3).</p>
+  the common-sample one. Targets per D4: the first-print score is always shown; the settled score
+  (<code>fixed_h8</code>: outcome as recorded 8 quarters after quarter end, D2) fills in as targets mature —
+  currently euro area only, US rows stay first-print-only until ALFRED vintages are ingested (owner action
+  O3). Recent quarters are absent from settled rows until they settle. A k&nbsp;=&nbsp;12 sensitivity run
+  ships in the score files but is deliberately not a landing view (09 §4).</p>
 </section>
 
 <section class="card">

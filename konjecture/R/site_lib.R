@@ -260,21 +260,30 @@ HORIZON_LABELS <- c(backcast = "Backcast (after quarter end)", nowcast = "Nowcas
 SCORE_SOURCE_LABELS <- c(gdpnow = "Atlanta Fed GDPNow", nyfed = "NY Fed Staff Nowcast",
                          spf_philly = "Philly Fed SPF (mean)", spf_ecb = "ECB SPF (mean)")
 
+# fixed, pre-declared default view (09 §4): first-print always shown, the
+# settled fixed_h8 score fills in as targets mature; the k=12 sensitivity rule
+# stays in the data files and is never rendered here
+TARGET_RULE_LABELS <- c(first_release = "first print", fixed_h8 = "settled (8q)")
+
 scores_table <- function(summary_dt) {
   if (is.null(summary_dt) || !nrow(summary_dt)) return('<p class="note">Scores pending.</p>')
   d <- as.data.table(summary_dt)
+  if (!"target_rule" %in% names(d)) d[, target_rule := "first_release"]
+  d <- d[target_rule %in% names(TARGET_RULE_LABELS)]
   d[, hord := match(as.character(horizon), names(HORIZON_LABELS))]
-  d <- d[order(region, source, hord)]
+  d[, tord := match(target_rule, names(TARGET_RULE_LABELS))]
+  d <- d[order(region, source, hord, tord)]
   rows <- vapply(seq_len(nrow(d)), function(i) {
     r <- d[i]
     lab <- SCORE_SOURCE_LABELS[r$source]
     if (is.na(lab)) lab <- r$source
     unit <- if (r$variable == "rgdp_growth_yoy") "yoy pp" else "SAAR pp"
-    sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%s</td><td>%+.2f</td><td>%s</td></tr>",
-            r$region, esc(lab), HORIZON_LABELS[as.character(r$horizon)], unit,
+    sprintf("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td>%s</td><td>%+.2f</td><td>%s</td></tr>",
+            r$region, esc(lab), HORIZON_LABELS[as.character(r$horizon)],
+            TARGET_RULE_LABELS[r$target_rule], unit,
             r$n, r$n_quarters, f2(r$mae), r$bias, f2(r$rmse))
   }, "")
-  paste0('<table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Unit</th>',
+  paste0('<table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Target</th><th>Unit</th>',
          '<th>n</th><th>Quarters</th><th>MAE</th><th>Bias</th><th>RMSE</th></tr></thead><tbody>',
          paste(rows, collapse = ""), "</tbody></table>")
 }

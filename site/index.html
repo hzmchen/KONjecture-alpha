@@ -80,7 +80,7 @@ ul{margin:6px 0;padding-left:20px}
   comparison itself is useful.</p>
 </header>
 
-<div class="banner"><span>Data retrieved <strong>2026-07-06</strong> · page built <strong>2026-07-06</strong> ·
+<div class="banner"><span>Data retrieved <strong>2026-07-06</strong> · page built <strong>2026-07-07</strong> ·
 static snapshot, updates event-driven, no schedule promised.</span></div>
 <div class="banner" id="stale">This snapshot is more than 45 days old. The project is likely dormant
 (by design — see the sunset note in the repository); figures below describe the situation as of 2026-07-06.</div>
@@ -140,11 +140,14 @@ static snapshot, updates event-driven, no schedule promised.</span></div>
   <p class="sub">Every score names its target (D1: US = BEA advance, EA = preliminary flash via ECB-RTD
   first vintage) and its horizon bucket — nowcast and longer-term forecast performance are never pooled.
   Errors in each source's native unit; regions are never compared to each other.</p>
-  <div class="tablewrap"><table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Unit</th><th>n</th><th>Quarters</th><th>MAE</th><th>Bias</th><th>RMSE</th></tr></thead><tbody><tr><td>EA</td><td>ECB SPF (mean)</td><td>2–4 quarters ahead</td><td>yoy pp</td><td>107</td><td>107</td><td>0.99</td><td>+0.51</td><td>1.99</td></tr><tr><td>EA</td><td>ECB SPF (mean)</td><td>5+ quarters ahead</td><td>yoy pp</td><td>106</td><td>103</td><td>1.59</td><td>+0.92</td><td>2.83</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Backcast (after quarter end)</td><td>SAAR pp</td><td>677</td><td>58</td><td>0.92</td><td>+0.24</td><td>1.40</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>1384</td><td>59</td><td>1.59</td><td>+0.33</td><td>2.93</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Backcast (after quarter end)</td><td>SAAR pp</td><td>130</td><td>34</td><td>2.31</td><td>-0.19</td><td>4.91</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>465</td><td>36</td><td>2.07</td><td>-0.17</td><td>4.77</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>1 quarter ahead</td><td>SAAR pp</td><td>171</td><td>36</td><td>2.79</td><td>-0.26</td><td>8.13</td></tr><tr><td>US</td><td>Philly Fed SPF (mean)</td><td>Nowcast (inside quarter)</td><td>SAAR pp</td><td>59</td><td>59</td><td>1.46</td><td>-0.05</td><td>2.51</td></tr></tbody></table></div>
+  <div class="tablewrap"><table><thead><tr><th>Region</th><th>Source</th><th>Horizon</th><th>Target</th><th>Unit</th><th>n</th><th>Quarters</th><th>MAE</th><th>Bias</th><th>RMSE</th></tr></thead><tbody><tr><td>EA</td><td>ECB SPF (mean)</td><td>2–4 quarters ahead</td><td>first print</td><td>yoy pp</td><td>107</td><td>107</td><td>0.99</td><td>+0.51</td><td>1.99</td></tr><tr><td>EA</td><td>ECB SPF (mean)</td><td>2–4 quarters ahead</td><td>settled (8q)</td><td>yoy pp</td><td>99</td><td>99</td><td>1.11</td><td>+0.43</td><td>2.10</td></tr><tr><td>EA</td><td>ECB SPF (mean)</td><td>5+ quarters ahead</td><td>first print</td><td>yoy pp</td><td>106</td><td>103</td><td>1.59</td><td>+0.92</td><td>2.83</td></tr><tr><td>EA</td><td>ECB SPF (mean)</td><td>5+ quarters ahead</td><td>settled (8q)</td><td>yoy pp</td><td>98</td><td>95</td><td>1.69</td><td>+0.83</td><td>2.92</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Backcast (after quarter end)</td><td>first print</td><td>SAAR pp</td><td>677</td><td>58</td><td>0.92</td><td>+0.24</td><td>1.40</td></tr><tr><td>US</td><td>Atlanta Fed GDPNow</td><td>Nowcast (inside quarter)</td><td>first print</td><td>SAAR pp</td><td>1384</td><td>59</td><td>1.59</td><td>+0.33</td><td>2.93</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Backcast (after quarter end)</td><td>first print</td><td>SAAR pp</td><td>130</td><td>34</td><td>2.31</td><td>-0.19</td><td>4.91</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>Nowcast (inside quarter)</td><td>first print</td><td>SAAR pp</td><td>465</td><td>36</td><td>2.07</td><td>-0.17</td><td>4.77</td></tr><tr><td>US</td><td>NY Fed Staff Nowcast</td><td>1 quarter ahead</td><td>first print</td><td>SAAR pp</td><td>171</td><td>36</td><td>2.79</td><td>-0.26</td><td>8.13</td></tr><tr><td>US</td><td>Philly Fed SPF (mean)</td><td>Nowcast (inside quarter)</td><td>first print</td><td>SAAR pp</td><td>59</td><td>59</td><td>1.46</td><td>-0.05</td><td>2.51</td></tr></tbody></table></div>
   <p class="note">Samples differ per source (see Quarters) and include the COVID quarters, which dominate
   RMSE; cross-source comparisons are only fair on a common sample — the MAE row in the table view above is
-  the common-sample one. The fixed-horizon score (<code>fixed_h8</code>, D2) joins for the euro area next
-  and for the US once ALFRED vintages are ingested (owner action O3).</p>
+  the common-sample one. Targets per D4: the first-print score is always shown; the settled score
+  (<code>fixed_h8</code>: outcome as recorded 8 quarters after quarter end, D2) fills in as targets mature —
+  currently euro area only, US rows stay first-print-only until ALFRED vintages are ingested (owner action
+  O3). Recent quarters are absent from settled rows until they settle. A k&nbsp;=&nbsp;12 sensitivity run
+  ships in the score files but is deliberately not a landing view (09 §4).</p>
 </section>
 
 <section class="card">
@@ -188,7 +191,7 @@ static snapshot, updates event-driven, no schedule promised.</span></div>
     });
     h.addEventListener('mouseleave', function(){ tip.style.opacity = 0; });
   });
-  var built = new Date('2026-07-06');
+  var built = new Date('2026-07-07');
   var days = (Date.now() - built.getTime()) / 864e5;
   if (days > 45) document.getElementById('stale').style.display = 'block';
 })();

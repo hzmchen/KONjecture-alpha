@@ -161,7 +161,7 @@ knitr::kable(rbind(tbl, mae_row), align = "lrrrrl")
 
 ```{r}
 #| results: asis
-cat("<p style='color:#52514e;font-size:13.5px'>Target: first release (D1 — US advance, EA preliminary flash via ECB-RTD first vintage). Nowcast and longer-term performance are never pooled; regions are never compared. Samples include COVID quarters.</p>")
+cat("<p style='color:#52514e;font-size:13.5px'>Targets per D4: first print (D1 — US advance, EA preliminary flash via ECB-RTD first vintage) always shown; settled (fixed_h8, D2 — outcome as recorded 8 quarters after quarter end) fills in as targets mature, currently EA only (US awaits ALFRED, O3). Nowcast and longer-term performance are never pooled; regions are never compared. Samples include COVID quarters.</p>")
 sp <- file.path(root, "data/archive/scores_summary.parquet")
 ss <- if (file.exists(sp)) as.data.table(nanoparquet::read_parquet(sp)) else NULL
 cat(scores_table(ss))
@@ -186,10 +186,11 @@ cat(sprintf(paste0(
   "<p><strong>Data retrieved %s · dashboard rendered %s.</strong> Static snapshot; updates are ",
   "event-driven, no schedule is promised, and staleness is announced rather than hidden.</p>",
   "<p><strong>What “right” means here.</strong> GDP is revised for years, so every score names its ",
-  "target. This dashboard scores against the <strong>first release</strong> (BEA advance) — what ",
-  "GDPNow itself targets and what a reader expects. A fixed-horizon target (the value k quarters ",
-  "later) is the planned scientific default for the leaderboard; it needs outcome vintages not yet ",
-  "ingested (ALFRED). Producers also differ in what they implicitly target, so rankings on one ",
+  "target. The headline scores use the <strong>first release</strong> (BEA advance) — what ",
+  "GDPNow itself targets and what a reader expects. The scientific default, a fixed-horizon target ",
+  "(<code>fixed_h8</code>: the value as recorded 8 quarters after quarter end), is shown where ",
+  "computable — currently the euro area; US rows follow once ALFRED outcome vintages are ingested ",
+  "(owner action O3). Producers also differ in what they implicitly target, so rankings on one ",
   "target cannot be read as model quality alone.</p>",
   "<p><strong>Sources.</strong> Atlanta Fed GDPNow spreadsheet, NY Fed Staff Nowcast download, ",
   "Philadelphia Fed SPF mean-growth file, ECB SPF microdata. URLs, retrieval timestamps and ",

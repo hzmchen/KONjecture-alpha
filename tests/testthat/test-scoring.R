@@ -45,6 +45,64 @@ test_that("score_summary aggregates per source x region x horizon, never across"
   expect_true(all(agg[region == "EA", source] == "spf_ecb"))
 })
 
+test_that("score_fixed_h settles against the last vintage published within k quarters", {
+  oc <- data.table(
+    region = "EA", variable = "rgdp_growth",
+    target_period = c(rep("2020Q1", 4), "2021Q1"),
+    release_label = c("first_release", "vintage_20200731",
+                      "vintage_20220315", "vintage_20220615", "vintage_20230601"),
+    published_on = as.Date(c("2020-04-30", "2020-07-31", "2022-03-15",
+                             "2022-06-15", "2023-06-01")),
+    value_native = c(-3.8, -3.6, -3.7, -3.5, 0.2), unit_native = "qq_pct")
+  fc <- data.table(source = "src_a", region = "EA", variable = "rgdp_growth",
+                   target_period = "2020Q1", forecast_date = as.Date("2020-02-15"),
+                   value_native = -1.0, unit_native = "qq_pct")
+  s <- score_fixed_h(fc, oc, k = 8)
+  # settle-by = 2020Q1 end (2020-03-31) + 8 quarters = 2022-03-31 -> vintage_20220315,
+  # never the later 2022-06-15 vintage and never the first_release row
+  expect_identical(nrow(s), 1L)
+  expect_equal(s$observed, -3.7)
+  expect_identical(s$target_rule, "fixed_h8")
+  expect_equal(s$error, -1.0 - (-3.7))
+  expect_identical(as.character(s$horizon), "nowcast")
+  # k = 12 sensitivity settles later -> picks the 2022-06-15 vintage instead
+  s12 <- score_fixed_h(fc, oc, k = 12)
+  expect_equal(s12$observed, -3.5)
+  expect_identical(s12$target_rule, "fixed_h12")
+})
+
+test_that("score_fixed_h leaves unsettled targets blank (D4) and respects vintages", {
+  oc <- data.table(
+    region = "EA", variable = "rgdp_growth", target_period = "2025Q4",
+    release_label = "vintage_20260130", published_on = as.Date("2026-01-30"),
+    value_native = 0.4, unit_native = "qq_pct")
+  fc <- data.table(source = "src_a", region = "EA", variable = "rgdp_growth",
+                   target_period = "2025Q4", forecast_date = as.Date("2025-11-15"),
+                   value_native = 0.5, unit_native = "qq_pct")
+  # settle-by = 2027-12-31 is in the future relative to the last available
+  # vintage's world: rule = last vintage <= settle-by exists (2026-01-30), BUT
+  # settlement requires the settle date itself to have passed the data's as-of
+  # date; here as_of = max(published_on) = 2026-01-30 < 2027-12-31 -> no score
+  s <- score_fixed_h(fc, oc, k = 8)
+  expect_identical(nrow(s), 0L)
+})
+
+test_that("fixed_h8 on the real archive: EA scores exist, US absent until ALFRED (O3)", {
+  tb <- load_tables()
+  s <- score_fixed_h(tb$fc, tb$oc, k = 8)
+  expect_gt(nrow(s[region == "EA"]), 0)
+  expect_identical(nrow(s[region == "US"]), 0L)          # only 'advance', no vintages
+  expect_false("nyfed_retro" %in% s$source)
+  expect_true(all(s$forecast_date < s$published_on))
+  expect_true(all(as.character(s$horizon) %in% c("2-4q_ahead", "5q+_ahead")))
+  # combined table keeps rules apart in the summary
+  both <- rbind(score_first_release(tb$fc, tb$oc), s)
+  agg <- score_summary(both)
+  expect_identical(
+    nrow(agg[duplicated(agg[, .(source, region, variable, target_rule, horizon)])]), 0L)
+  expect_true(all(c("first_release", "fixed_h8") %in% agg$target_rule))
+})
+
 test_that("write_scores emits parquet + csv mirrors", {
   tb <- load_tables()
   s <- score_first_release(tb$fc, tb$oc)[1:20]

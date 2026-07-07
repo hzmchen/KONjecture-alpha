@@ -108,8 +108,23 @@ test_that("scores_table renders the horizon-stratified summary and a pending fal
   expect_match(html, "Backcast \\(after quarter end\\)")
   expect_match(html, "<td>EA</td><td>ECB SPF \\(mean\\)</td>")
   expect_match(html, "yoy pp")
-  # one row per summary row
-  expect_identical(lengths(regmatches(html, gregexpr("<tr><td>", html))), nrow(ss))
+  # one row per summary row shown in the default view (fixed_h12 is a
+  # sensitivity check kept in the data files, never the landing view — 09 §4)
+  expect_identical(lengths(regmatches(html, gregexpr("<tr><td>", html))),
+                   nrow(ss[target_rule != "fixed_h12"]))
+})
+
+test_that("scores_table shows the target rule (D4: first print + settled, no k=12)", {
+  ss <- data.table(
+    source = "spf_ecb", region = "EA", variable = "rgdp_growth_yoy",
+    target_rule = c("first_release", "fixed_h8", "fixed_h12"),
+    horizon = factor("2-4q_ahead"), n = 10L, n_quarters = 10L,
+    mae = c(1.0, 1.1, 1.2), bias = 0.1, rmse = 1.3)
+  html <- scores_table(ss)
+  expect_match(html, "<th>Target</th>", fixed = TRUE)
+  expect_match(html, "first print", fixed = TRUE)
+  expect_match(html, "settled (8q)", fixed = TRUE)
+  expect_identical(lengths(regmatches(html, gregexpr("<tr><td>", html))), 2L)
 })
 
 test_that("site_main writes the page for an arbitrary root", {
@@ -119,7 +134,11 @@ test_that("site_main writes the page for an arbitrary root", {
               "data/archive/scores_summary.parquet",
               "data/raw/manifest.json", "site/template.html"))
     file.copy(file.path(root, f), file.path(tmp, f))
-  out <- site_main(tmp, built_at = "2026-07-06")
+  # rebuild with the committed page's own built-at date -> must be byte-identical
+  committed_built <- regmatches(
+    committed <- paste(readLines(file.path(root, "site/index.html"), warn = FALSE), collapse = "\n"),
+    regexpr("(?<=var built = new Date\\(')[0-9-]+", committed, perl = TRUE))
+  out <- site_main(tmp, built_at = committed_built)
   expect_true(file.exists(out))
   expect_identical(readLines(out, warn = FALSE), readLines(file.path(root, "site/index.html"), warn = FALSE))
 })
