@@ -1,4 +1,4 @@
-# pipeline/R/scoring.R — X2 scoring: horizon buckets, vintage correctness,
+# konjecture/R/scoring.R — X2 scoring: horizon buckets, vintage correctness,
 # and hand-checked score values against the real archive.
 
 root <- Sys.getenv("KONJ_ROOT")

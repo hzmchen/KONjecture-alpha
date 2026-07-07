@@ -3,7 +3,7 @@
 # The network stage (ingest/download_raw.R) stays a separate, deliberate manual
 # step — the pipeline itself never touches the network. See pipeline/README.md.
 library(targets)
-tar_source("R")  # functions.R + scoring.R
+tar_source("../konjecture/R")  # the konjecture package; sourced (not installed) so targets tracks function definitions
 tar_option_set(packages = c("dfms", "nanoparquet", "data.table"))
 
 list(
@@ -43,7 +43,7 @@ list(
 
   # --- N3: static comparison page (site/build_site.R) ---
   tar_target(site_script, "../site/build_site.R", format = "file"),
-  tar_target(site_lib, "../site/R/site_lib.R", format = "file"),
+  tar_target(site_lib, "../konjecture/R/site_lib.R", format = "file"),
   tar_target(site_template, "../site/template.html", format = "file"),
   tar_target(site_html,
              run_build_script(site_script, c(archive_files, site_lib, site_template, scores_files),

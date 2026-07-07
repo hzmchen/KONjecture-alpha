@@ -16,7 +16,7 @@ execute:
 suppressMessages(library(data.table))
 root <- Sys.getenv("KONJ_ROOT")
 root <- if (nzchar(root)) normalizePath(root) else normalizePath("..")
-source(file.path(root, "site/R/site_lib.R"))
+source(file.path(root, "konjecture/R/site_lib.R"))
 
 fc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/forecasts.parquet")))
 oc <- as.data.table(nanoparquet::read_parquet(file.path(root, "data/archive/outcomes.parquet")))

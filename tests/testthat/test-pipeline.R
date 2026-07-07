@@ -1,4 +1,4 @@
-# pipeline/R/functions.R — model + IO functions. Real FRED csvs (committed
+# konjecture/R/functions.R — model + IO functions. Real FRED csvs (committed
 # cache) for data prep; synthetic series where the model property is the point.
 
 root <- Sys.getenv("KONJ_ROOT")

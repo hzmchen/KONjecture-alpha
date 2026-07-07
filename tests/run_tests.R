@@ -13,8 +13,8 @@ library(testthat)
 
 source(file.path(TEST_ROOT, "ingest", "download_raw.R"))
 source(file.path(TEST_ROOT, "ingest", "build_archive.R"))
-source(file.path(TEST_ROOT, "site", "R", "site_lib.R"))
-source(file.path(TEST_ROOT, "pipeline", "R", "functions.R"))
-source(file.path(TEST_ROOT, "pipeline", "R", "scoring.R"))
+# core functionality lives in the konjecture package (CLAUDE.md ground rule 1);
+# load_all(export_all = TRUE) also exposes internal helpers to the tests
+pkgload::load_all(file.path(TEST_ROOT, "konjecture"), quiet = TRUE)
 
 res <- test_dir(file.path(TEST_ROOT, "tests", "testthat"), stop_on_failure = TRUE)
