@@ -31,7 +31,9 @@ test_that("NAMESPACE exports the core API used by the usage layers", {
 
 test_that("the package loads as a package and its functions are callable", {
   skip_if_not_installed("pkgload")
-  pkgload::load_all(pkg_dir, quiet = TRUE)
+  # run_tests.R already load_all-ed the same code; the re-load here checks
+  # loadability in isolation, so identical-object "conflicts" are expected
+  pkgload::load_all(pkg_dir, quiet = TRUE, warn_conflicts = FALSE)
   expect_true("konjecture" %in% loadedNamespaces())
   expect_equal(konjecture::quarters_ahead(as.Date("2026-05-15"), "2026Q2"), 0L)
   expect_equal(as.character(konjecture::horizon_bucket(0L)), "nowcast")
