@@ -15,7 +15,8 @@ library(testthat)
 
 sources <- c("ingest/download_raw.R", "ingest/build_archive.R",
              "konjecture/R/site_lib.R", "konjecture/R/functions.R",
-             "konjecture/R/models.R", "konjecture/R/scoring.R")
+             "konjecture/R/models.R", "konjecture/R/scoring.R",
+             "konjecture/R/weo.R")
 tests <- list.files("tests/testthat", pattern = "^test-.*[.]R$", full.names = TRUE)
 
 cov <- covr::file_coverage(sources, tests)
@@ -39,7 +40,7 @@ md <- c(
   "",
   "Excluded from instrumentation (execution glue, exercised end-to-end by `targets::tar_make()` and the golden-page regression test): `site/build_site.R`, `pipeline/_targets.R`, `tests/`.",
   "",
-  "Tests run fully offline: download success/failure paths are exercised via `file://` URLs and a refused localhost connection, never the real providers. Remaining uncovered lines are (a) the `--file=`/`getwd()` root-resolution fallbacks, which only fire in script context, and (b) defensive guards in the ECB/GDPNow parsers for malformed sections that the committed cache cannot trigger — kept as protection against future upstream format changes."
+  "Tests run fully offline: download success/failure paths are exercised via `file://` URLs and a refused localhost connection, never the real providers. Remaining uncovered lines are (a) the `--file=`/`getwd()` root-resolution fallbacks, which only fire in script context, (b) defensive guards in the ECB/GDPNow parsers for malformed sections that the committed cache cannot trigger — kept as protection against future upstream format changes, and (c) the real-network branches of `download_raw.R` (curl handle setup, the https candidate-URL walk), exercised only by deliberate ingestion runs."
 )
 writeLines(md, "tests/COVERAGE.md")
 cat(sprintf("\nTOTAL: %.1f%% -> tests/COVERAGE.md\n", total))

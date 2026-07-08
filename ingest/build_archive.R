@@ -20,6 +20,10 @@ ROOT <- archive_get_root()
 RAW <- file.path(ROOT, "data", "raw")
 ARCHIVE_OUT <- file.path(ROOT, "data", "archive")
 
+# WEO parsing lives in the konjecture package (X8); this script stays the thin
+# path-supplying usage layer
+source(file.path(ROOT, "konjecture", "R", "weo.R"))
+
 MANIFEST <- jsonlite::read_json(file.path(RAW, "manifest.json"))
 retrieved <- function(fname) MANIFEST[[fname]]$retrieved_at
 
@@ -259,6 +263,18 @@ spf_ecb <- function() {
   rbindlist(Filter(Negate(is.null), out))
 }
 
+# --- IMF WEO: institutional annual forecast rounds (trimmed vintage files) ---
+
+weo <- function() {
+  files <- sort(list.files(RAW, pattern = "^weo_\\d{4}_\\d{2}[.]tsv$"))
+  rbindlist(lapply(files, function(f) {
+    ym <- as.integer(strsplit(sub("[.]tsv$", "", f), "_", fixed = TRUE)[[1]][2:3])
+    rows <- weo_forecast_rows(weo_subset(weo_table(weo_read_lines(file.path(RAW, f)))),
+                              year = ym[1], month = ym[2])
+    rows[, `:=`(retrieved_at = retrieved(f), source_file = f)]
+  }))
+}
+
 # --- assemble ---
 
 archive_main <- function(out_dir = ARCHIVE_OUT) {
@@ -272,7 +288,7 @@ archive_main <- function(out_dir = ARCHIVE_OUT) {
   }
   ny <- rbind(nyfed(), nyfed_legacy())
   ny <- ny[!duplicated(ny, by = c("source", "target_period", "forecast_date"))]
-  forecasts <- rbindlist(list(gd_fc, ny, spf_philly(), spf_ecb()))
+  forecasts <- rbindlist(Filter(nrow, list(gd_fc, ny, spf_philly(), spf_ecb(), weo())))
   forecasts[, value_qq := ifelse(unit_native == "saar_pct",
                                  round(saar_to_qq(value_native), 4), NA_real_)]
   outcomes <- gd$oc

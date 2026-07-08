@@ -25,6 +25,12 @@ export(model_adapters)
 export(run_adapters)
 export(midas_bridge)
 
+# IMF WEO vintage ingestion (R/weo.R)
+export(weo_read_lines)
+export(weo_table)
+export(weo_subset)
+export(weo_forecast_rows)
+
 # scoring (R/scoring.R)
 export(quarters_ahead)
 export(horizon_bucket)

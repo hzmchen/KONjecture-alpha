@@ -89,10 +89,26 @@ test_that("ea_outcomes derives vintage-correct q/q and yoy growth from RTD level
                      by = .(variable, target_period)]$V1))
 })
 
+test_that("weo builds annual institutional forecast rounds from the vintage cache", {
+  w <- weo()
+  # one round per cached vintage file, forecasts only (no history rows)
+  vintages <- list.files(file.path(root, "data", "raw"), pattern = "^weo_\\d{4}_\\d{2}[.]tsv$")
+  expect_identical(uniqueN(w$forecast_date), length(vintages))
+  expect_identical(unique(w$source), "imf_weo")
+  expect_identical(unique(w$region), "US")
+  expect_true(all(grepl("^\\d{4}$", w$target_period)))   # annual calendar-year targets
+  expect_true(all(w$unit_native == "yoy_pct"))
+  expect_true(all(as.integer(w$target_period) >= as.integer(format(w$forecast_date, "%Y"))))
+  # hand-verified vs the published April 2025 edition (US: 1.8 in the headline table)
+  r <- w[forecast_date == as.Date("2025-04-15") & target_period == "2025"]
+  expect_equal(r$value_native, 1.826)
+  expect_identical(r$source_file, "weo_2025_04.tsv")
+})
+
 test_that("archive_main reproduces the committed archive exactly", {
   tmp <- tempfile("archout")
   res <- archive_main(out_dir = tmp)
-  expect_identical(nrow(res$forecasts), 5075L)
+  expect_identical(nrow(res$forecasts), 5161L)
   expect_true(all(is.na(res$forecasts[unit_native == "yoy_pct", value_qq])))
   for (name in c("forecasts", "outcomes")) {
     got <- fread(file.path(tmp, paste0(name, ".csv")))

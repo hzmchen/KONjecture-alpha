@@ -50,7 +50,7 @@ test_that("build_context derives the page state from the archive", {
   expect_length(ctx$rows, 12)
   expect_length(ctx$common, 12)
   expect_named(ctx$mae, c("gdpnow", "nyfed", "spf_philly"))
-  expect_identical(ctx$data_as_of, "2026-07-06")
+  expect_identical(ctx$data_as_of, "2026-07-08")  # last retrieval: WEO vintages (X8)
   expect_identical(format(ctx$ecb_last_round), "2026-04-15")
   expect_true(ctx$gdpnow_full_mae > 0 && length(ctx$full) == 59)
   # every tracked quarter's advance estimate is present in every row

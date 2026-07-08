@@ -62,5 +62,125 @@
     "sha256": "9c7db72f789aee58bc03f40fb6460781eb95928bceb9829d18997566d71e2a58",
     "bytes": 7270695,
     "notes": "ECB Real-Time Database: euro-area real GDP level (chain-linked volumes, SA), ALL vintages via SDMX includeHistory (VALID_FROM = publication timestamp). EA outcome vintages; note RTD first capture may lag the Eurostat flash (D1 caveat)."
+  },
+  "weo_2023_10.tsv": {
+    "source_id": "weo_2023_10",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2023/WEOOct2023all.xls",
+    "retrieved_at": "2026-07-08T06:42:03+0000",
+    "sha256": "a5cdae3aec8a650cf7ad541c58e375dec86fe6777cf20b93bf2af289d0c1110c",
+    "bytes": 148650,
+    "notes": "IMF WEO database, October 2023 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2018_04.tsv": {
+    "source_id": "weo_2018_04",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2018/WEOApr2018all.xls",
+    "retrieved_at": "2026-07-08T06:41:41+0000",
+    "sha256": "4add0c18e1a23df1ed5b8468450424fba9004bae79b0b8735b25bbe50e1fc2f7",
+    "bytes": 142234,
+    "notes": "IMF WEO database, April 2018 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2018_10.tsv": {
+    "source_id": "weo_2018_10",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2018/WEOOct2018all.xls",
+    "retrieved_at": "2026-07-08T06:41:44+0000",
+    "sha256": "8ff1dc38d4927feca65e26fbec5e611dc042166f5526d0680805f4ed026e78eb",
+    "bytes": 142953,
+    "notes": "IMF WEO database, October 2018 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2019_04.tsv": {
+    "source_id": "weo_2019_04",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2019/WEOApr2019all.xls",
+    "retrieved_at": "2026-07-08T06:41:46+0000",
+    "sha256": "5cc82f481d82eee23d4aa8bc09338932d429636ab2ef463fac8927522cde80d6",
+    "bytes": 142482,
+    "notes": "IMF WEO database, April 2019 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2019_10.tsv": {
+    "source_id": "weo_2019_10",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2019/WEOOct2019all.xls",
+    "retrieved_at": "2026-07-08T06:41:48+0000",
+    "sha256": "99ea6c9bbb4346d2616337b5369d0bee40828bbc66c96a0be929de5b15529020",
+    "bytes": 144129,
+    "notes": "IMF WEO database, October 2019 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2020_04.tsv": {
+    "source_id": "weo_2020_04",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2020/WEOApr2020all.xls",
+    "retrieved_at": "2026-07-08T06:41:49+0000",
+    "sha256": "7ae1f055b3b1ccb34e2fbf53713a1dd786341715a3e95c00c7fce92d2d0fc62f",
+    "bytes": 198526,
+    "notes": "IMF WEO database, April 2020 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2021_04.tsv": {
+    "source_id": "weo_2021_04",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2021/WEOApr2021all.xls",
+    "retrieved_at": "2026-07-08T06:41:53+0000",
+    "sha256": "a627a962ec6126e27b42d216b2988c168aaf24d45dbea803e9904ceb508181d6",
+    "bytes": 145595,
+    "notes": "IMF WEO database, April 2021 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2021_10.tsv": {
+    "source_id": "weo_2021_10",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2021/WEOOct2021all.xls",
+    "retrieved_at": "2026-07-08T06:41:55+0000",
+    "sha256": "e4f168d08bd44620facbb4da942e08480ac4680197a0ea2d351e0b33f6dcbe28",
+    "bytes": 146405,
+    "notes": "IMF WEO database, October 2021 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2022_10.tsv": {
+    "source_id": "weo_2022_10",
+    "url": "https://www.imf.org/-/media/Files/Publications/WEO/WEO-Database/2022/WEOOct2022all.xls",
+    "retrieved_at": "2026-07-08T06:42:00+0000",
+    "sha256": "3f95dd486221a237ecf57982ecfdbb725b3c40764c08805da9c9a1e31ff1bf0d",
+    "bytes": 147637,
+    "notes": "IMF WEO database, October 2022 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2020_10.tsv": {
+    "source_id": "weo_2020_10",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2020/02/weooct2020all.xls",
+    "retrieved_at": "2026-07-08T06:47:23+0000",
+    "sha256": "bf00fa385415dd803f608251cab47370e892e8529ae5c8cdeddaa999cf94f550",
+    "bytes": 146247,
+    "notes": "IMF WEO database, October 2020 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2022_04.tsv": {
+    "source_id": "weo_2022_04",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2022/weoapr2022all.xls",
+    "retrieved_at": "2026-07-08T06:47:25+0000",
+    "sha256": "1240e91a8c2db55a8a54d3474d152b3b44be86d8b05abc8a9d464c34874fa139",
+    "bytes": 149297,
+    "notes": "IMF WEO database, April 2022 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2023_04.tsv": {
+    "source_id": "weo_2023_04",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2023/weoapr2023all.xls",
+    "retrieved_at": "2026-07-08T06:47:26+0000",
+    "sha256": "2d780f53e8ac77857d4f2aceb1a23e11c784b58ba68193f371781d1c8d717f7d",
+    "bytes": 150555,
+    "notes": "IMF WEO database, April 2023 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2024_04.tsv": {
+    "source_id": "weo_2024_04",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2024/april/weoapr2024all.xls",
+    "retrieved_at": "2026-07-08T06:47:27+0000",
+    "sha256": "32b85c09ce4b7f8422e19e8e6992b25da495df297c06d9ae3972e792e6e2fa1b",
+    "bytes": 152705,
+    "notes": "IMF WEO database, April 2024 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2024_10.tsv": {
+    "source_id": "weo_2024_10",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2024/october/weooct2024all.xls",
+    "retrieved_at": "2026-07-08T06:47:28+0000",
+    "sha256": "c519043ea1c53a46fedc4de91ea9a95f4ad95b8154ab2d00fbf557976ca4e148",
+    "bytes": 152702,
+    "notes": "IMF WEO database, October 2024 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
+  },
+  "weo_2025_04.tsv": {
+    "source_id": "weo_2025_04",
+    "url": "https://www.imf.org/-/media/files/publications/weo/weo-database/2025/april/weoapr2025all.xls",
+    "retrieved_at": "2026-07-08T06:47:28+0000",
+    "sha256": "3e0965057d6921e1790d0199b0784abd170a4b4cb1340ba7984970603239366c",
+    "bytes": 153896,
+    "notes": "IMF WEO database, April 2025 edition: bulk 'all countries' file, trimmed at retrieval to the NGDP_RPCH rows (real GDP growth, annual %, all countries) and re-encoded UTF-8; sha256 is of the trimmed file."
   }
 }
