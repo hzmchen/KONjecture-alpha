@@ -2,7 +2,7 @@
 # layers (pipeline/_targets.R, site/build_site.R, site/dashboard.qmd) and the
 # test suite call is exported; helpers stay internal.
 import(data.table)
-importFrom(stats, aggregate, coef, lm, qnorm)
+importFrom(stats, aggregate, coef, lm, qnorm, residuals)
 importFrom(utils, read.csv, write.csv)
 
 # pipeline: data prep + models + hubverse output (R/functions.R)
@@ -18,6 +18,12 @@ export(as_model_output)
 export(run_build_script)
 export(render_dashboard)
 export(append_model_output)
+
+# model-adapter interface (R/models.R)
+export(validate_forecast)
+export(model_adapters)
+export(run_adapters)
+export(midas_bridge)
 
 # scoring (R/scoring.R)
 export(quarters_ahead)

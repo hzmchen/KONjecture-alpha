@@ -3,9 +3,10 @@ Title: Core Functionality for the KONjecture Nowcast Archive
 Version: 0.1.0
 Authors@R: person("KONjecture", "Project", email = "news378@team706.com",
     role = c("aut", "cre"))
-Description: Data transforms, nowcast models (AR benchmark, DFM bridge),
-    vintage-correct scoring stratified by horizon bucket, and the SVG
-    chart/site builders for the KONjecture GDP nowcast archive. Contains only
+Description: Data transforms, nowcast models (AR benchmark, DFM bridge,
+    MIDAS bridge) behind a common adapter interface, vintage-correct scoring
+    stratified by horizon bucket, and the SVG chart/site builders for the
+    KONjecture GDP nowcast archive. Contains only
     composable functions with no hard-coded paths or top-level side effects;
     the usage layers (targets pipeline, ingest and site scripts) supply paths
     and orchestration. See CLAUDE.md ground rules at the repository root.
@@ -21,6 +22,7 @@ Suggests:
     covr,
     dfms,
     jsonlite,
+    midasr,
     pkgload,
     scoringutils,
     testthat

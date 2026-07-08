@@ -32,11 +32,13 @@ list(
   tar_target(gdp, read_gdp(gdp_file)),
   tar_target(X, transform_monthly(monthly_raw)),
   tar_target(target_q, nowcast_quarter(gdp, X)),
-  tar_target(fc_ar, ar_benchmark(gdp, target_q)),
-  tar_target(fc_dfm, dfm_bridge(X, gdp, target_q)),
-  tar_target(run_date, as.character(Sys.Date())),
-  tar_target(model_output, rbind(as_model_output(fc_ar, run_date),
-                                 as_model_output(fc_dfm, run_date))),
+  # X3: every model class runs through the adapter interface (konjecture/R/models.R);
+  # the registry includes the midasr bridge whenever midasr is installed
+  tar_target(fcs, run_adapters(model_adapters(), list(gdp = gdp, X = X), target_q)),
+  # always recomputed: a cached Sys.Date() would stamp later runs' forecasts
+  # with a stale forecast_date, breaking the archive's vintage correctness
+  tar_target(run_date, as.character(Sys.Date()), cue = tar_cue(mode = "always")),
+  tar_target(model_output, do.call(rbind, lapply(fcs, as_model_output, run_date))),
   tar_target(archived, append_model_output(model_output,
                                            "../data/archive/model_output.parquet"),
              format = "file"),

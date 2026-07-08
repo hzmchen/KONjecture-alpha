@@ -18,6 +18,7 @@ test_that("NAMESPACE exports the core API used by the usage layers", {
     # pipeline/_targets.R
     "read_monthly", "read_gdp", "transform_monthly", "nowcast_quarter",
     "ar_benchmark", "dfm_bridge", "as_model_output", "append_model_output",
+    "model_adapters", "run_adapters", "validate_forecast", "midas_bridge",
     "run_build_script", "render_dashboard",
     "score_first_release", "score_summary", "write_scores",
     # site/build_site.R + site/dashboard.qmd
