@@ -1,0 +1,7 @@
+{
+  "title": "KONjecture-alpha: GDP nowcast comparison archive and platform",
+  "description": "Point-in-time archive of GDP nowcasts and outcome vintages (US, euro area), comparison pages, and a reproducible R pipeline. Escrow snapshot per the project's release protocol (RELEASING.md).",
+  "upload_type": "software",
+  "creators": [{"name": "hzmchen"}],
+  "keywords": ["nowcasting", "GDP", "real-time data", "forecast evaluation", "vintages"]
+}

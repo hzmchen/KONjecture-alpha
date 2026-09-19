@@ -1,0 +1,25 @@
+# Fail-loud CI (pre-mortem countermeasure, research/08 §4): every push and a
+# monthly heartbeat run the offline test suite, so silent rot in parsers or
+# the toolchain surfaces as a red X instead of a quietly wrong page.
+# Tests are fully offline (committed raw cache as fixtures) — CI never hits
+# a data provider.
+name: tests
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 6 3 * *" # monthly heartbeat: catches toolchain rot without pushes
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - uses: r-lib/actions/setup-renv@v2
+      - name: Run test suite
+        run: Rscript tests/run_tests.R
+      - name: Coverage report
+        run: Rscript tests/coverage.R

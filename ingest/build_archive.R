@@ -1,0 +1,322 @@
+#!/usr/bin/env Rscript
+# Build the normalized vintage-correct archive from data/raw/ (see docs/schema.md).
+#
+# Reads only the local cache — no network. Emits data/archive/{forecasts,outcomes}
+# as parquet + csv mirror, append-only semantics: the build is deterministic from
+# the raw cache, so "appending" happens by refreshing the cache, not by editing
+# outputs. Every row carries provenance (source_file, retrieved_at).
+
+suppressMessages(library(data.table))
+
+archive_get_root <- function() {
+  env <- Sys.getenv("KONJ_ROOT")
+  if (nzchar(env)) return(normalizePath(env))
+  arg <- grep("--file=", commandArgs(FALSE), value = TRUE)
+  if (length(arg)) return(normalizePath(file.path(dirname(sub("--file=", "", arg[1])), "..")))
+  normalizePath(getwd())
+}
+
+ROOT <- archive_get_root()
+RAW <- file.path(ROOT, "data", "raw")
+ARCHIVE_OUT <- file.path(ROOT, "data", "archive")
+
+# WEO parsing lives in the konjecture package (X8); this script stays the thin
+# path-supplying usage layer
+source(file.path(ROOT, "konjecture", "R", "weo.R"))
+
+MANIFEST <- jsonlite::read_json(file.path(RAW, "manifest.json"))
+retrieved <- function(fname) MANIFEST[[fname]]$retrieved_at
+
+saar_to_qq <- function(s) ((1 + s / 100)^0.25 - 1) * 100
+
+quarter_label <- function(d) {
+  d <- as.Date(d)
+  sprintf("%dQ%d", as.integer(format(d, "%Y")), (as.integer(format(d, "%m")) - 1) %/% 3 + 1)
+}
+
+# --- GDPNow: forecasts (TrackingDeepArchives + TrackingArchives) + outcomes (TrackRecord) ---
+
+gdpnow <- function() {
+  f <- "gdpnow_tracking.xlsx"
+  path <- file.path(RAW, f)
+  frames <- lapply(c("TrackingDeepArchives", "TrackingArchives"), function(sheet) {
+    df <- suppressWarnings(readxl::read_excel(path, sheet = sheet))
+    names(df) <- trimws(names(df))
+    keep <- as.data.table(df[, c("Forecast Date", "Quarter being forecasted", "GDP Nowcast")])
+    setnames(keep, c("fdate", "qdate", "value"))
+    keep <- keep[!is.na(fdate) & !is.na(qdate) & !is.na(value)]
+    keep[, sheet := sheet]
+    keep
+  })
+  fc <- rbindlist(frames)
+  # overlap between the two tabs: same behavior as the validated Python build —
+  # rows sorted by sheet name, last kept per (forecast date, quarter)
+  setorder(fc, sheet)
+  fc <- fc[!duplicated(fc, by = c("fdate", "qdate"), fromLast = TRUE)]
+  forecasts <- data.table(
+    source = "gdpnow", region = "US", variable = "rgdp_growth",
+    target_period = quarter_label(fc$qdate),
+    forecast_date = as.Date(fc$fdate),
+    output_type = "point", output_id = NA_character_,
+    value_native = as.numeric(fc$value), unit_native = "saar_pct",
+    declared_target = "advance",  # GDPNow TrackRecord scores itself vs BEA advance
+    retrieved_at = retrieved(f), source_file = f
+  )
+
+  tr <- suppressWarnings(readxl::read_excel(path, sheet = "TrackRecord", skip = 1, col_names = FALSE))
+  tr <- as.data.table(tr[, c(1, 3, 4)])
+  setnames(tr, c("qdate", "value", "pub"))
+  tr <- tr[!is.na(qdate) & !is.na(value) & !is.na(pub)]
+  outcomes <- data.table(
+    region = "US", variable = "rgdp_growth",
+    target_period = quarter_label(tr$qdate),
+    release_label = "advance",
+    published_on = as.Date(tr$pub),
+    value_native = as.numeric(tr$value), unit_native = "saar_pct",
+    source = "gdpnow_trackrecord(BEA)",
+    retrieved_at = retrieved(f), source_file = f
+  )
+  list(fc = forecasts, oc = outcomes)
+}
+
+gdpnow_current <- function() {
+  # In-flight quarter from CurrentQtrEvolution (not yet in the archive tabs):
+  # [Date, Major Releases, GDP*] column triplets; quarter parsed from the
+  # 'Initial GDPNow YY:Qq forecast' label.
+  f <- "gdpnow_tracking.xlsx"
+  df <- suppressWarnings(readxl::read_excel(file.path(RAW, f), sheet = "CurrentQtrEvolution",
+                                            col_names = FALSE, col_types = "text"))
+  cells <- unlist(df, use.names = FALSE)
+  m <- regmatches(cells, regexec("Initial GDPNow (\\d\\d):Q(\\d) forecast", cells))
+  m <- Filter(function(x) length(x) == 3, m)
+  if (!length(m)) return(data.table())
+  tp <- sprintf("20%sQ%s", m[[1]][2], m[[1]][3])
+  rows <- rbindlist(lapply(seq(1, ncol(df) - 2, by = 3), function(c0) {
+    d <- suppressWarnings(as.Date(as.numeric(df[[c0]]), origin = "1899-12-30"))
+    v <- suppressWarnings(as.numeric(df[[c0 + 2]]))
+    ok <- !is.na(d) & !is.na(v)
+    data.table(forecast_date = d[ok], value = v[ok])
+  }))
+  rows <- rows[!duplicated(forecast_date)]
+  data.table(
+    source = "gdpnow", region = "US", variable = "rgdp_growth",
+    target_period = tp, forecast_date = rows$forecast_date,
+    output_type = "point", output_id = NA_character_,
+    value_native = rows$value, unit_native = "saar_pct",
+    declared_target = "advance",
+    retrieved_at = retrieved(f), source_file = paste0(f, ":CurrentQtrEvolution")
+  )
+}
+
+# --- NY Fed Staff Nowcast: Forecasts By Quarter grids (2023- relaunch file and
+# the retired 2002-2021 legacy file; both share the same date x quarter layout) ---
+
+nyfed_grid <- function(f) {
+  raw <- suppressWarnings(readxl::read_excel(file.path(RAW, f), sheet = "Forecasts By Quarter",
+                                             col_names = FALSE, col_types = "text"))
+  hdr_row <- which(trimws(raw[[1]]) == "Forecast Date")[1]
+  hdr <- unlist(raw[hdr_row, ], use.names = FALSE)
+  body <- raw[-seq_len(hdr_row), , drop = FALSE]
+  names(body) <- ifelse(is.na(hdr), paste0("x", seq_along(hdr)), hdr)
+  dt <- as.data.table(body)
+  dt[, fdate := as.Date(as.numeric(`Forecast Date`), origin = "1899-12-30")]
+  dt <- dt[!is.na(fdate)]
+  qcols <- grep("^\\d{4}Q[1-4]$", names(dt), value = TRUE)
+  long <- melt(dt, id.vars = "fdate", measure.vars = qcols,
+               variable.name = "target_period", value.name = "value", variable.factor = FALSE)
+  long[, value := suppressWarnings(as.numeric(value))]
+  long[!is.na(value)]
+}
+
+nyfed_rows <- function(long, src, f) {
+  data.table(
+    source = src, region = "US", variable = "rgdp_growth",
+    target_period = long$target_period, forecast_date = long$fdate,
+    output_type = "point", output_id = NA_character_,
+    value_native = long$value, unit_native = "saar_pct",
+    declared_target = "unspecified",
+    retrieved_at = retrieved(f), source_file = f
+  )
+}
+
+nyfed <- function() {
+  f <- "nyfed_staff_nowcast.xlsx"
+  nyfed_rows(nyfed_grid(f), "nyfed", f)
+}
+
+nyfed_legacy <- function() {
+  # per the file's own note: forecasts for target quarters 2016Q1-> were made in
+  # real time; earlier targets are retrospective model estimates - kept apart
+  # under source `nyfed_retro` so leaderboards never mix them in
+  f <- "nyfed_staff_nowcast_legacy.xlsx"
+  long <- nyfed_grid(f)
+  rbind(nyfed_rows(long[target_period >= "2016Q1"], "nyfed", f),
+        nyfed_rows(long[target_period < "2016Q1"], "nyfed_retro", f))
+}
+
+# --- ECB RTD: euro-area outcome vintages (GDP level history -> q/q growth) ---
+
+rtd_growth <- function(lv, lag_q, variable, unit, f) {
+  # growth of each quarter vs the SAME vintage's level lag_q quarters earlier
+  prev <- lv[, .(qstart = seq(qstart, by = "3 months", length.out = lag_q + 1)[lag_q + 1],
+                 vprev = vfrom, level_prev = level), by = seq_len(nrow(lv))][, -1]
+  setkey(prev, qstart, vprev)
+  cur <- lv[, .(target_period, qstart, level, vfrom, vjoin = vfrom)]
+  m <- prev[cur, on = .(qstart, vprev <= vjoin), mult = "last",
+            .(target_period, qstart, level, vfrom = i.vfrom, level_prev = x.level_prev)]
+  m <- m[!is.na(level_prev)]
+  m[, growth := round((level / level_prev - 1) * 100, 4)]
+  m[, release_label := ifelse(vfrom == min(vfrom), "first_release",
+                              paste0("vintage_", format(vfrom, "%Y%m%d"))), by = target_period]
+  data.table(
+    region = "EA", variable = variable,
+    target_period = m$target_period,
+    release_label = m$release_label,
+    published_on = m$vfrom,
+    value_native = m$growth, unit_native = unit,
+    source = "ecb_rtd(G_GDPM_TO_C)",
+    retrieved_at = retrieved(f), source_file = f
+  )
+}
+
+ea_outcomes <- function() {
+  f <- "ecb_rtd_gdp_ea.csv"
+  raw <- fread(file.path(RAW, f), select = c("TIME_PERIOD", "OBS_VALUE", "VALID_FROM"))
+  lv <- raw[, .(
+    target_period = sub("-", "", TIME_PERIOD),
+    qstart = as.Date(paste0(substr(TIME_PERIOD, 1, 4), "-",
+                            (as.integer(substr(TIME_PERIOD, 7, 7)) - 1L) * 3L + 1L, "-01")),
+    level = as.numeric(OBS_VALUE),
+    vfrom = as.Date(substr(VALID_FROM, 1, 10))
+  )][order(qstart, vfrom)]
+  rbind(rtd_growth(lv, 1L, "rgdp_growth", "qq_pct", f),        # q/q, canonical
+        rtd_growth(lv, 4L, "rgdp_growth_yoy", "yoy_pct", f))   # yoy, for ECB SPF scoring
+}
+
+# --- Philadelphia Fed SPF: mean current-quarter growth (drgdp2) per survey round ---
+
+PHILLY_ROUND_MONTH <- c(2, 5, 8, 11)  # survey published mid Feb/May/Aug/Nov
+
+spf_philly <- function() {
+  f <- "spf_philly_meangrowth.xlsx"
+  df <- as.data.table(readxl::read_excel(file.path(RAW, f), sheet = "RGDP"))
+  df <- df[!is.na(drgdp2)]
+  # drgdp2 = mean forecast for the survey's own quarter (the SPF "nowcast"), SAAR %.
+  # Exact deadline dates aren't in this file: forecast_date is approximated as the
+  # 15th of the round's middle month (documented in ingest/README.md).
+  data.table(
+    source = "spf_philly", region = "US", variable = "rgdp_growth",
+    target_period = sprintf("%dQ%d", as.integer(df$YEAR), as.integer(df$QUARTER)),
+    forecast_date = as.Date(sprintf("%d-%02d-15", as.integer(df$YEAR),
+                                    PHILLY_ROUND_MONTH[as.integer(df$QUARTER)])),
+    output_type = "point", output_id = NA_character_,
+    value_native = as.numeric(df$drgdp2), unit_native = "saar_pct",
+    declared_target = "unspecified",
+    retrieved_at = retrieved(f), source_file = f
+  )
+}
+
+# --- ECB SPF: mean GDP point forecast per round & target (year-on-year, kept native) ---
+
+GDP_HDR <- "GROWTH EXPECTATIONS"
+
+spf_ecb <- function() {
+  f <- "spf_ecb_individual.zip"
+  zpath <- file.path(RAW, f)
+  entries <- sort(grep("^\\d{4}Q[1-4]\\.csv$", utils::unzip(zpath, list = TRUE)$Name, value = TRUE))
+  out <- lapply(entries, function(name) {
+    yr <- as.integer(substr(name, 1, 4)); qn <- as.integer(substr(name, 6, 6))
+    lines <- readLines(unz(zpath, name), warn = FALSE)
+    fields <- strsplit(lines, ",", fixed = TRUE)
+    col0 <- vapply(fields, function(x) if (length(x)) x[1] else "", "")
+    # section headers = prose rows (letters, not TARGET_PERIOD); data rows start
+    # with a target period like "2026", "2026Q4", "2027Mar"
+    is_hdr <- grepl("[A-Za-z]", col0) & col0 != "TARGET_PERIOD" &
+      !grepl("^\\d{4}(Q[1-4]|[A-Z][a-z]{2})?$", col0)
+    hdr_idx <- which(is_hdr)
+    gdp_start <- hdr_idx[grepl(GDP_HDR, col0[hdr_idx], fixed = TRUE)]
+    if (!length(gdp_start)) return(NULL)
+    start <- gdp_start[1]
+    later <- hdr_idx[hdr_idx > start]
+    end <- if (length(later)) later[1] else length(lines) + 1L
+    sec <- seq(start + 1L, end - 1L)
+    trow <- sec[col0[sec] == "TARGET_PERIOD"][1]
+    if (is.na(trow)) return(NULL)
+    point_col <- which(fields[[trow]] == "POINT")[1]
+    body <- sec[sec > trow & col0[sec] != ""]
+    vals <- suppressWarnings(as.numeric(vapply(fields[body], function(x)
+      if (length(x) >= point_col) x[point_col] else NA_character_, "")))
+    grp <- data.table(target = col0[body], point = vals)[!is.na(point)]
+    if (!nrow(grp)) return(NULL)
+    agg <- grp[, .(value = round(mean(point), 4)), keyby = target]
+    data.table(
+      source = "spf_ecb", region = "EA", variable = "rgdp_growth",
+      target_period = agg$target,
+      # ECB SPF rounds close in the first month of the quarter (approx: 15th)
+      forecast_date = as.Date(sprintf("%d-%02d-15", yr, (qn - 1L) * 3L + 1L)),
+      output_type = "point", output_id = NA_character_,
+      value_native = agg$value, unit_native = "yoy_pct",
+      declared_target = "unspecified",
+      retrieved_at = retrieved(f), source_file = paste0(f, ":", name)
+    )
+  })
+  rbindlist(Filter(Negate(is.null), out))
+}
+
+# --- IMF WEO: institutional annual forecast rounds (trimmed vintage files) ---
+
+weo <- function() {
+  files <- sort(list.files(RAW, pattern = "^weo_\\d{4}_\\d{2}[.]tsv$"))
+  rbindlist(lapply(files, function(f) {
+    ym <- as.integer(strsplit(sub("[.]tsv$", "", f), "_", fixed = TRUE)[[1]][2:3])
+    rows <- weo_forecast_rows(weo_subset(weo_table(weo_read_lines(file.path(RAW, f)))),
+                              year = ym[1], month = ym[2])
+    rows[, `:=`(retrieved_at = retrieved(f), source_file = f)]
+  }))
+}
+
+# --- assemble ---
+
+archive_main <- function(out_dir = ARCHIVE_OUT) {
+  dir.create(out_dir, recursive = TRUE, showWarnings = FALSE)
+  gd <- gdpnow()
+  gd_fc <- gd$fc
+  gd_cur <- gdpnow_current()
+  if (nrow(gd_cur)) {
+    gd_fc <- rbind(gd_fc, gd_cur)
+    gd_fc <- gd_fc[!duplicated(gd_fc, by = c("target_period", "forecast_date"))]
+  }
+  ny <- rbind(nyfed(), nyfed_legacy())
+  ny <- ny[!duplicated(ny, by = c("source", "target_period", "forecast_date"))]
+  forecasts <- rbindlist(Filter(nrow, list(gd_fc, ny, spf_philly(), spf_ecb(), weo())))
+  forecasts[, value_qq := ifelse(unit_native == "saar_pct",
+                                 round(saar_to_qq(value_native), 4), NA_real_)]
+  outcomes <- gd$oc
+  outcomes[, value_qq := round(saar_to_qq(value_native), 4)]
+  ea <- ea_outcomes()
+  # q/q rows are already canonical; yoy rows are not identifiable to q/q
+  ea[, value_qq := ifelse(unit_native == "qq_pct", value_native, NA_real_)]
+  outcomes <- rbind(outcomes, ea)
+
+  setcolorder(forecasts, c("source", "region", "variable", "target_period", "forecast_date",
+                           "output_type", "output_id", "value_native", "unit_native", "value_qq",
+                           "declared_target", "retrieved_at", "source_file"))
+  setcolorder(outcomes, c("region", "variable", "target_period", "release_label", "published_on",
+                          "value_native", "unit_native", "value_qq", "source", "retrieved_at",
+                          "source_file"))
+  setorder(forecasts, source, target_period, forecast_date)
+  setorder(outcomes, target_period)
+
+  for (name in c("forecasts", "outcomes")) {
+    df <- get(name)
+    nanoparquet::write_parquet(df, file.path(out_dir, paste0(name, ".parquet")))
+    fwrite(df, file.path(out_dir, paste0(name, ".csv")))
+    cat(sprintf("%s: %s rows -> data/archive/%s.parquet (+.csv)\n",
+                name, format(nrow(df), big.mark = ","), name))
+  }
+  cat("\nforecast rows per source:\n")
+  print(forecasts[, .(rows = .N, first = min(forecast_date), last = max(forecast_date)), by = source])
+  invisible(list(forecasts = forecasts, outcomes = outcomes))
+}
+
+if (sys.nframe() == 0L) archive_main()
